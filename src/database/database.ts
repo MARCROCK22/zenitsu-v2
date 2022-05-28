@@ -29,7 +29,6 @@ databaseRouter.put('/game', async (req, res) => {
             users,
             channelId,
             messageId,
-            state: 'waiting'
         }
     });
     res.json(data);
