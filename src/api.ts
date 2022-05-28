@@ -2,7 +2,6 @@ import __fetch from 'node-fetch';
 import { BotGuild, BotGuildMember, BotUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
 
-
 export const baseURL = {
     cache: 'http://localhost:5555/cache',
     database: 'http://localhost:5555/database',
@@ -20,7 +19,7 @@ export const API = {
             return fetch(`${baseURL.database}/game`, {
                 method: 'PUT',
                 body: JSON.stringify({
-                    type: 'ttt',
+                    type: 'TicTacToe',
                     users
                 }),
                 headers: {
