@@ -17,13 +17,15 @@ const shards: { [x: number]: DetritusSocket.Socket } = {};
 let socketToSend: WebSocket | void;
 let shardCount = 1;//fetch shard count
 
-for (let i = 0; i < shardCount; i++) {
-    const shard = spawnShard({
-        count: shardCount,
-        shardId: i,
-    });
-    shards[i] = shard;
-}
+setTimeout(() => {
+    for (let i = 0; i < shardCount; i++) {
+        const shard = spawnShard({
+            count: shardCount,
+            shardId: i,
+        });
+        shards[i] = shard;
+    }
+}, 500);
 
 const ws = new WebSocketServer({ port: 6666 });
 ws.on('connection', socket => {

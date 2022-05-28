@@ -26,7 +26,14 @@ export class Play extends BaseCommand {
         if (user.bot) return interaction.editOrCreateResponse({
             content: 'You can\'t play with a bot!',
         });
-        const response = await API.database.createGame([interaction.user.id, user.id]);
+        const messageId = await interaction;
+        const response = await API.database.createGame(
+            [interaction.user.id, user.id],
+            {
+                channelId: interaction.data.channel_id,
+                messageId: interaction.data.id,
+            }
+        );
         if (!response.ok) return interaction.editOrCreateResponse({
             content: await response.text(),
         });

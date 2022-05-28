@@ -1,9 +1,6 @@
 console.log('Starting...');
 
 import express from 'express';
-import { readdir, readFile, writeFile } from 'fs/promises';
-import { decode } from 'imagescript';
-import { join } from 'path';
 
 const app = express();
 
@@ -16,5 +13,5 @@ app.post('/', (req, res) => {
 });
 
 app.listen(3333, () => {
-    console.log('App listening on port 3333!');
+    console.log('App listening on port 3333');
 });

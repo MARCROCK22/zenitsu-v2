@@ -83,15 +83,13 @@ export class BaseInteraction {
         return this.client.deleteWebhookTokenMessage(this.data.application_id, this.data.token, '@original');
     }
 
-    async editOrCreateResponse(response: Parameters<this['createInteractionResponse']>[0] | Parameters<this['editResponse']>[0]) {
+    async editOrCreateResponse(response: Parameters<this['editResponse']>[0]) {
         if (this._promise) await this._promise;
         if (this.sended) return this.editResponse(response);
         return this.createInteractionResponse(response);
     }
 
     async createInteractionResponse(response: Exclude<Parameters<import('detritus-client-rest').Client['createInteractionResponse']>[2], number>['data']) {
-        if (this._promise) await this._promise;
-        if (this.sended) return this.editResponse(response);
         this.sendedAt = Date.now();
         this._promise = this.client.createInteractionResponse(this.data.id, this.data.token, {
             type: InteractionResponseType.ChannelMessageWithSource,

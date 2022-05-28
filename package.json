@@ -7,7 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "npx swc ./src -d dist",
-    "runall": "concurrently \"node ./dist/request/run.js\" \"node ./dist/gateway/run.js\" \"node ./dist/bot/run.js\" \"node ./dist/database/run.js\" \"node ./dist/images/run.js\" -c \"green,red,blue,yellow,cyan\" -p \"[{name}]\" -n \"HANDLER,GATEWAY,BOT,DATABASE,IMAGES\"",
+    "runall": "concurrently \"node ./dist/request/run.js\" \"node ./dist/database/run.js\" \"node ./dist/images/run.js\" \"node ./dist/gateway/run.js\" \"node ./dist/bot/run.js\" -c \"green,yellow,cyan,red,blue\" -p \"[{name}]\" -n \"HANDLER,DATABASE,IMAGES,GATEWAY,BOT\"",
     "test-swc": "npx nodemon --exec \"swc ./src -d dist && npm run runall\"",
     "pm2:request": "pm2 start ./dist/request/run.js --name request",
     "pm2:gateway": "pm2 start ./dist/gateway/run.js --name gateway",

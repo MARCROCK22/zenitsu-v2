@@ -6,9 +6,8 @@ import {
     GatewayChannelDeleteDispatch, GatewayGuildMemberUpdateDispatch,
     GatewayMessageDeleteDispatch, GatewayMessageDeleteBulkDispatch,
     GatewayGuildRoleDeleteDispatch, GatewayChannelCreateDispatch,
-    ChannelType,
-    GatewayInteractionCreateDispatch,
-    GatewayUserUpdateDispatch
+    ChannelType, GatewayUserUpdateDispatch,
+    GatewayInteractionCreateDispatch, GatewayGuildCreateDispatchData,
 } from 'discord-api-types/v10';
 import { API } from '../api.js';
 
@@ -17,8 +16,11 @@ export class EventProcessor {
     async handle(event: GatewayDispatchPayload) {
         switch (event.t) {
             case 'GUILD_CREATE':
-            case 'GUILD_UPDATE':
+                //@ts-ignore: discord-api-types sucks
                 await this.handleGuildCreate(event);
+                break;
+            case 'GUILD_UPDATE':
+                await this.handleGuildUpdate(event);
                 break;
             case 'GUILD_DELETE':
                 await this.handleGuildDelete(event);
@@ -95,7 +97,11 @@ export class EventProcessor {
         await API.cache.delete(`*:${event.id}:*`, true);
     }
 
-    async handleGuildCreate({ d: event }: GatewayGuildCreateDispatch | GatewayGuildUpdateDispatch) {
+    async handleGuildUpdate({ d: event }: GatewayGuildUpdateDispatch) {
+        await API.cache.post(`guild:${event.id}`, event);
+    }
+
+    async handleGuildCreate({ d: event }: { d: GatewayGuildCreateDispatchData }) {
 
         await API.cache.post(`guild:${event.id}`, event);
 

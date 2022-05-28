@@ -15,12 +15,14 @@ export const API = {
         return fetch(`${baseURL.base}/ping`).then(res => res.json());
     },
     database: {
-        createGame(users: [string, string]) {
+        createGame(users: [string, string], { channelId, messageId}:{channelId: string, messageId: string}) {
             return fetch(`${baseURL.database}/game`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     type: 'TicTacToe',
-                    users
+                    users,
+                    channelId,
+                    messageId,
                 }),
                 headers: {
                     'Content-Type': 'application/json'
