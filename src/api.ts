@@ -9,7 +9,7 @@ export const baseURL = {
     base: 'http://localhost:5555',
 } as const;
 
-const fetch = createFetchQueued();
+const fetch = createFetchQueued() as typeof __fetch;
 
 export const API = {
     ping() {
