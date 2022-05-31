@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@swc/cli": "^0.1.57",
-    "@swc/core": "^1.2.177",
+    "@swc/core": "^1.2.196",
     "@types/express": "^4.17.13",
     "@types/multer": "^1.4.7",
     "@types/node-fetch": "^2.6.1",
