@@ -125,7 +125,6 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
                 if (![userId, opponentId].includes(interaction.user.id)) return;
                 await API.database.deleteGame(interaction.user.id);
                 await interaction.editOrCreateResponse({ content: `Deleted by <@${interaction.user.id}>` });
-
             } else if (interaction.customId.match(/tictactoe,request,([0-9]{17,}),([0-9]{17,})/gi)) {
                 const [, , userId, opponentId] = interaction.customId.match(/tictactoe,request,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
                 if (opponentId !== interaction.user.id) return;
