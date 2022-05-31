@@ -13,12 +13,23 @@ datasource db {
 model Game {
   id        String    @id @default(cuid()) @map("_id")
   type      GameType
+  state     GameState @default(Waiting)
+  guildId   String
   channelId String
   messageId String
   users     String[]
   board     String[]
+  turn      Int
+  winner    String?
+  moves     String[] //...moves
 }
 
 enum GameType {
   TicTacToe
+}
+
+enum GameState {
+  Waiting
+  Playing
+  Finished
 }

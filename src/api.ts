@@ -1,6 +1,7 @@
 import __fetch from 'node-fetch';
 import { BotGuild, BotGuildMember, BotUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
+import { Game } from '@prisma/client';
 
 export const baseURL = {
     cache: 'http://localhost:5555/cache',
@@ -15,18 +16,46 @@ export const API = {
         return fetch(`${baseURL.base}/ping`).then(res => res.json());
     },
     database: {
-        createGame(users: [string, string], { channelId, messageId}:{channelId: string, messageId: string}) {
+        createGame(users: [string, string], { channelId, messageId, guildId, type }: { channelId: string, messageId: string, guildId: string, type: 'TicTacToe' }) {
             return fetch(`${baseURL.database}/game`, {
                 method: 'PUT',
                 body: JSON.stringify({
-                    type: 'TicTacToe',
+                    type,
                     users,
                     channelId,
                     messageId,
+                    guildId,
+                    turn: Math.floor(Math.random() * 2),
                 }),
                 headers: {
                     'Content-Type': 'application/json'
                 }
+            });
+        },
+        async getGame(userId: string) {
+            const res = await fetch(`${baseURL.database}/game/${userId}`);
+            return res.json() as Promise<Game | null>;
+        },
+        deleteGame(userId: string) {
+            return fetch(`${baseURL.database}/game/${userId}`, {
+                method: 'DELETE',
+            });
+        },
+        makeMove(userId: string, { type, move }: { type: 'TicTacToe', move: string }) {
+            return fetch(`${baseURL.database}/game/${userId}/move`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    type,
+                    move
+                }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+        },
+        acceptGame(userId: string) {
+            return fetch(`${baseURL.database}/game/${userId}/accept`, {
+                method: 'POST',
             });
         }
     },

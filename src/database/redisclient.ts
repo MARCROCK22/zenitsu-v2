@@ -20,10 +20,10 @@ client.on('error', (err) => {
     console.warn('Connection to Redis closed');
 });
 
-client.flushall()
-    .then(() => {
-        console.log('Flushed all keys');
-    });
+// client.flushall()
+//     .then(() => {
+//         console.log('Flushed all keys');
+//     });
 
 export async function deleteAllKeysMatched(match: string) {
     let pipeline = client.pipeline();

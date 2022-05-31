@@ -18,6 +18,7 @@ import { BaseCommand, DCommand, DCommandOptions, Interaction } from '../../../ba
 })
 export class Play extends BaseCommand {
     async run(interaction: Interaction) {
+        if (!interaction.data.guild_id) return interaction.editOrCreateResponse({ content: 'no guild xdxd' });
         if (!interaction.getMember('member')) return interaction.editOrCreateResponse({
             content: 'You need to specify a member to play with!',
         });
@@ -26,14 +27,13 @@ export class Play extends BaseCommand {
         if (user.bot) return interaction.editOrCreateResponse({
             content: 'You can\'t play with a bot!',
         });
-        const messageId = await interaction;
-        const response = await API.database.createGame(
-            [interaction.user.id, user.id],
-            {
-                channelId: interaction.data.channel_id,
-                messageId: interaction.data.id,
-            }
-        );
+        const messageId = await interaction.getResponse().then(x => x.id);
+        const response = await API.database.createGame([interaction.user.id, user.id], {
+            channelId: interaction.data.channel_id,
+            messageId,
+            guildId: interaction.data.guild_id,
+            type: 'TicTacToe'
+        });
         if (!response.ok) return interaction.editOrCreateResponse({
             content: await response.text(),
         });

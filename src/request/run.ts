@@ -27,13 +27,16 @@ app.all('*', async (req, res) => {
         const data = dataType === 'json' ? (Object.keys(req.query)[0] ? req.query : req.body) : handleMultipart(req);
         const files = data.files;
         delete data.files;
-        const result = await restClient.request({
+        const result = await restClient.request(['get', 'head'].includes(method) ? {
+            method,
+            path: endpoint,
+        } : {
             body: data,
             method,
             path: endpoint,
             files,
         });
-        return res.status(200).json(result);
+        return res.status(200).send(result);
     } catch (e: any) {
         console.error(e, 'error', JSON.stringify(e.errors));
         const status = e.response ? e.response.status : 500;

@@ -77,6 +77,15 @@ export class BaseInteraction {
         return this.data.member ? this.data.member.user : this.data.user!;
     }
 
+    async getResponse() {
+        if (this._promise) await this._promise;
+        if (!this.sended) return Promise.resolve();
+        return this.client.fetchWebhookTokenMessage(this.data.application_id, this.data.token, '@original')
+            .then(x => {
+                return JSON.parse(x.toString());
+            });
+    }
+
     async deleteResponse() {
         if (this._promise) await this._promise;
         if (!this.sended) return Promise.resolve();
