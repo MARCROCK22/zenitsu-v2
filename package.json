@@ -47,7 +47,7 @@
     "@typescript-eslint/eslint-plugin": "^5.27.0",
     "@typescript-eslint/parser": "^5.22.0",
     "concurrently": "^7.1.0",
-    "discord-api-types": "^0.33.0",
+    "discord-api-types": "^0.33.1",
     "eslint": "^8.15.0",
     "pm2": "^5.2.0",
     "prisma": "^3.14.0",
