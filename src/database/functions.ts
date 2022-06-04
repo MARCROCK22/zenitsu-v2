@@ -18,3 +18,14 @@ export function parsePost(query: string, __data: any) {
     else return __data;
 
 }
+
+//mejorar los tipos para que si el callback no retorna promesa esto tampoco
+export async function executeFunction<T extends (...args: unknown[]) => unknown>(callback: T): Promise<{ data: Awaited<ReturnType<T>>; took: number }> {
+    const date = Date.now();
+    const result = await callback();
+    const took = Date.now() - date;
+    return {
+        data: result as Awaited<ReturnType<T>>,
+        took
+    };
+}

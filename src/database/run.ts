@@ -7,6 +7,7 @@ import prismaClient from './prismaclient.js';
 import express from 'express';
 import { cacheRouter } from './cache.js';
 import { databaseRouter } from './database.js';
+import { executeFunction } from './functions.js';
 
 config({
     path: join(process.cwd(), '.env')
@@ -20,13 +21,13 @@ app.use('/cache', cacheRouter);
 app.use('/database', databaseRouter);
 
 app.get('/ping', async (req, res) => {
-    const date = Date.now();
-    await prismaClient.$runCommandRaw({ ping: 1 });
-    const dateRedis = Date.now();
-    await RedisManager.ping();
+    const databasePing
+        = (await executeFunction(() => prismaClient.$runCommandRaw({ ping: 1 }))).took;
+    const redisPing
+        = (await executeFunction(() => RedisManager.ping())).took;
     res.json({
-        database: Date.now() - date,
-        redis: Date.now() - dateRedis
+        database: databasePing,
+        redis: redisPing
     });
 });
 
