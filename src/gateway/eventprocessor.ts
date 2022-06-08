@@ -7,7 +7,7 @@ import {
     GatewayMessageDeleteDispatch, GatewayMessageDeleteBulkDispatch,
     GatewayGuildRoleDeleteDispatch, GatewayChannelCreateDispatch,
     ChannelType, GatewayUserUpdateDispatch,
-    GatewayInteractionCreateDispatch, GatewayGuildCreateDispatchData,
+    GatewayInteractionCreateDispatch,
 } from 'discord-api-types/v10';
 import { API } from '../api.js';
 
