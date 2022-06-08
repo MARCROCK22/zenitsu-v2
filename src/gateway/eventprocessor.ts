@@ -13,10 +13,9 @@ import { API } from '../api.js';
 
 export class EventProcessor {
     //fix this types
-    async handle(event: GatewayDispatchPayload) {
+    async handle(event: GatewayDispatchPayload | GatewayGuildCreateDispatch) {
         switch (event.t) {
             case 'GUILD_CREATE':
-                //@ts-ignore: discord-api-types sucks
                 await this.handleGuildCreate(event);
                 break;
             case 'GUILD_UPDATE':
@@ -101,7 +100,7 @@ export class EventProcessor {
         await API.cache.post(`guild:${event.id}`, event);
     }
 
-    async handleGuildCreate({ d: event }: { d: GatewayGuildCreateDispatchData }) {
+    async handleGuildCreate({ d: event }: GatewayGuildCreateDispatch) {
 
         await API.cache.post(`guild:${event.id}`, event);
 

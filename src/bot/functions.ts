@@ -5,6 +5,7 @@ import {
     readdir,
     stat as fsStat
 } from 'fs/promises';
+import { BaseCommand } from './interactions/chat/base';
 
 export async function getFiles(dir: string) {
     const files = await readdir(dir);
@@ -22,7 +23,7 @@ export async function getFiles(dir: string) {
 }
 
 export async function loadCommands() {
-    const commands = [];
+    const commands: BaseCommand[] = [];
     const cmds = await getFiles(join(process.cwd(), 'dist', 'bot', 'interactions'));
     for (let i of cmds) {
         const cmd = await import('file:///' + i);
