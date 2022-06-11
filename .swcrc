@@ -12,15 +12,7 @@
         },
         "transform": {
             "legacyDecorator": true,
-            "decoratorMetadata": false,
-            "react": {
-                "throwIfNamespace": false,
-                "development": false,
-                "useBuiltins": false,
-                "pragma": "React.createElement",
-                "pragmaFrag": "React.Fragment",
-                "importSource": "react"
-            }
+            "decoratorMetadata": false
         },
         "keepClassNames": false,
         "loose": false,
