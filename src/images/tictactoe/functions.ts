@@ -17,7 +17,7 @@ export default async function drawTictactoeBoard(board: { map: [string, number][
     const image = new Image(300, 300);
 
     const background = await decode(backgroundBuffer);
-    if (background instanceof GIF) throw new Error('GIF not supported');
+    if (background instanceof GIF) throw new Error('Unexpected GIF');
     image.composite(background, 0, 0);
 
     let index = 0;
@@ -28,14 +28,14 @@ export default async function drawTictactoeBoard(board: { map: [string, number][
             case 'X':
             case 'x': {
                 const X_RANDOM = await decode(imagesBuffer_X[value]);
-                if (X_RANDOM instanceof GIF) throw new Error('GIF not supported');
+                if (X_RANDOM instanceof GIF) throw new Error('Unexpected GIF');
                 image.composite(X_RANDOM, y * 100, x * 100);
             }
                 break;
             case 'O':
             case 'o': {
                 const O_RANDOM = await decode(imagesBuffer_O[value]);
-                if (O_RANDOM instanceof GIF) throw new Error('GIF not supported');
+                if (O_RANDOM instanceof GIF) throw new Error('Unexpected GIF');
                 image.composite(O_RANDOM, y * 100, x * 100);
             }
                 break;
