@@ -1,19 +1,14 @@
 {
-    "sourceMaps": "inline",
     "module": {
-        "type": "es6",
-        "strict": true,
-        "strictMode": true,
-        "noInterop": false
+        "type": "es6"
     },
     "jsc": {
         "externalHelpers": false,
         "target": "es2022",
         "parser": {
             "syntax": "typescript",
-            "tsx": true,
-            "decorators": true,
-            "dynamicImport": true
+            "tsx": false,
+            "decorators": true
         },
         "transform": {
             "legacyDecorator": true,
@@ -27,7 +22,13 @@
                 "importSource": "react"
             }
         },
-        "keepClassNames": false
-    }
+        "keepClassNames": false,
+        "loose": false,
+        "minify": {
+            "compress": false,
+            "mangle": false
+        }
+    },
+    "minify": false
 }
-// https://npm.runkit.com/tsconfig-to-swcconfig
+// https://swc.rs/playground
