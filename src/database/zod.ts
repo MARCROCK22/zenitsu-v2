@@ -28,3 +28,13 @@ export const guildSchema = z.object({
 });
 
 export type CachedGuild = z.infer<typeof guildSchema>;
+
+export const roleSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    position: z.number(),
+    permissions: z.string(),
+    color: z.number(),
+});
+
+export type CachedRole = z.infer<typeof roleSchema>;

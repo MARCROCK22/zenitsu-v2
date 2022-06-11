@@ -1,4 +1,4 @@
-import { guildSchema, memberSchema, userSchema } from './zod.js';
+import { guildSchema, memberSchema, roleSchema, userSchema } from './zod.js';
 
 export function parsePost(query: string, __data: any) {
 
@@ -15,6 +15,7 @@ export function parsePost(query: string, __data: any) {
     if (query.match(regexs.guild)) return guildSchema.parse(__data);
     else if (query.match(regexs.member)) return memberSchema.parse(__data);
     else if (query.match(regexs.user)) return userSchema.parse(__data);
+    else if (query.match(regexs.role)) return roleSchema.parse(__data);
     else return __data;
 
 }

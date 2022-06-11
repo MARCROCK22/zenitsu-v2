@@ -22,6 +22,17 @@ import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../
     }]
 })
 export default class Test extends BaseCommand {
+
+    onBefore(interaction: Interaction): boolean | Promise<boolean> {
+        return interaction.user.id === '507367752391196682';
+    }
+
+    onCancel(interaction: Interaction) {
+        return interaction.editOrCreateResponse({
+            content: 'no.'
+        });
+    }
+
     async run(interaction: Interaction) {
         const query = interaction.getString('query')!;
         const scan = interaction.getBoolean('scan');
