@@ -9,7 +9,6 @@ import { join } from 'path';
 config({
     path: join(process.cwd(), '.env')
 });
-
 const restClient = new RestClient(process.env.TOKEN!);
 const app = express();
 
@@ -18,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(multer({ storage: multer.memoryStorage() }).any());
 app.use(handleReason);
 
-app.all('*', async (req, res) => {
+app.all('*', checkAuth, async (req, res) => {
     try {
         console.log(req.method, req.path, req.body);
         const endpoint = req.path.replace('/api/v' + Constants.ApiVersion, '');
@@ -73,4 +72,12 @@ function handleReason(req: express.Request, _res: express.Response, next: expres
         }
     }
     next();
+}
+
+function checkAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const host = req.get('host');
+    if (host === 'localhost:4444') {
+        return next();
+    }
+    return res.status(418).send('Unauthorized https://http.cat/418');
 }

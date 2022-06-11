@@ -11,12 +11,13 @@ import {
 } from './interactions/chat/base.js';
 import { loadCommands } from './functions.js';
 import { handleEvent } from './handler.js';
-export const restClient = new RestClient(process.env.TOKEN!, {
-    baseUrl: 'http://localhost:4444',
-});
 
 config({
     path: join(process.cwd(), '.env')
+});
+
+export const restClient = new RestClient(process.env.TOKEN!, {
+    baseUrl: 'http://localhost:4444',
 });
 
 function connectToGateway() {
