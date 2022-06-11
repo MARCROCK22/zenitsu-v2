@@ -12,8 +12,7 @@ import {
 import { API } from '../api.js';
 
 export class EventProcessor {
-    //fix this types
-    async handle(event: GatewayDispatchPayload | GatewayGuildCreateDispatch) {
+    async handle(event: GatewayDispatchPayload) {
         switch (event.t) {
             case 'GUILD_CREATE':
                 await this.handleGuildCreate(event);
