@@ -1,7 +1,7 @@
 import __fetch from 'node-fetch';
 import { CachedGuild, CachedGuildMember, CachedUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
-import { Game } from '@prisma/client';
+import { Game, GameType } from '@prisma/client';
 
 export const baseURL = {
     cache: 'http://localhost:5555/cache',
@@ -16,7 +16,7 @@ export const API = {
         return fetch(`${baseURL.base}/ping`).then(res => res.json());
     },
     database: {
-        createGame(users: [string, string], { channelId, messageId, guildId, type }: { channelId: string, messageId: string, guildId: string, type: 'TicTacToe' }) {
+        createGame(users: [string, string], { channelId, messageId, guildId, type }: { channelId: string, messageId: string, guildId: string, type: keyof typeof GameType }) {
             return fetch(`${baseURL.database}/game`, {
                 method: 'PUT',
                 body: JSON.stringify({
@@ -41,7 +41,7 @@ export const API = {
                 method: 'DELETE',
             });
         },
-        makeMove(userId: string, { type, move }: { type: 'TicTacToe', move: string }) {
+        makeMove(userId: string, { type, move }: { type: keyof typeof GameType, move: string }) {
             return fetch(`${baseURL.database}/game/${userId}/move`, {
                 method: 'POST',
                 body: JSON.stringify({
