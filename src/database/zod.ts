@@ -8,7 +8,7 @@ export const userSchema = z.object({
     bot: z.boolean().optional(),
 });
 
-export type BotUser = z.infer<typeof userSchema>;
+export type CachedUser = z.infer<typeof userSchema>;
 
 export const memberSchema = z.object({
     user: userSchema,
@@ -17,7 +17,7 @@ export const memberSchema = z.object({
     avatar: z.string().nullish(),
 });
 
-export type BotGuildMember = z.infer<typeof memberSchema>;
+export type CachedGuildMember = z.infer<typeof memberSchema>;
 
 export const guildSchema = z.object({
     id: z.string(),
@@ -27,4 +27,4 @@ export const guildSchema = z.object({
     preferred_locale: z.string()
 });
 
-export type BotGuild = z.infer<typeof guildSchema>;
+export type CachedGuild = z.infer<typeof guildSchema>;

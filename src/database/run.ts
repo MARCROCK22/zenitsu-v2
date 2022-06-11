@@ -2,8 +2,8 @@ console.log('Starting...');
 
 import { config } from 'dotenv';
 import { join } from 'path';
-import { RedisManager } from './manager.js';
-import prismaClient from './prismaclient.js';
+import { RedisManager } from './redis/manager.js';
+import { prismaClient } from './prisma/client.js';
 import express from 'express';
 import { cacheRouter } from './cache.js';
 import { databaseRouter } from './database.js';

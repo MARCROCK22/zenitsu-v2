@@ -8,4 +8,4 @@ client.$connect()
         console.log('Connected to Prisma');
     });
 
-export default client;
+export const prismaClient = client;

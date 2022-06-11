@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { GameTTT } from './classes/tictactoe.js';
-import prismaClient from './prismaclient.js';
+import { prismaClient } from './prisma/client.js';
 
 const databaseRouter = Router();
 const defaultBoards = {

@@ -1,5 +1,5 @@
 import __fetch from 'node-fetch';
-import { BotGuild, BotGuildMember, BotUser } from './database/zod';
+import { CachedGuild, CachedGuildMember, CachedUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Game } from '@prisma/client';
 
@@ -96,11 +96,13 @@ export const API = {
         post(id: string, data: any): Promise<string>;
         //TODO: types overload for member, role, channel, user, guild, etc...
         //or make functions like getMember, getRole, getChannel, getUser, etc...
-        get(id: `user:${string}`): Promise<BotUser | null>
-        get(id: `guild:${string}`): Promise<BotGuild | null>
-        get(id: `member:${string}:${string}`): Promise<BotGuildMember | null>
+        get(id: `user:${string}`): Promise<CachedUser | null>
+        get(id: `guild:${string}`): Promise<CachedGuild | null>
+        get(id: `member:${string}:${string}`): Promise<CachedGuildMember | null>
         get(id: string): Promise<any>;
-        delete(id: string, withMatch: boolean): Promise<string>;
+        delete(id: string): Promise<number>
+        delete(id: string, withMatch: true): Promise<string[]>
+        delete(id: string, withMatch: boolean): Promise<number>;
         scan(query: string): Promise<string[]>;
     }
 };
