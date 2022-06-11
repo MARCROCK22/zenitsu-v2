@@ -5,6 +5,7 @@ import {
     InteractionResponseType, MessageFlags,
     APIMessageComponentInteraction
 } from 'discord-api-types/v10';
+import { API } from '../../../api.js';
 
 export class BaseCommand {
     name: string = '';
@@ -17,15 +18,17 @@ export class BaseCommand {
         console.log(interaction);
     }
 
-    onBefore(__interaction: Interaction): Promise<boolean> | boolean {
+    onBefore(interaction: Interaction): Promise<boolean> | boolean {
         return true;
     }
 
-    onCancel(__interaction: Interaction): Promise<any> | any {
-        // void 0;
+    onCancel(interaction: Interaction): Promise<any> | any {
+        return interaction.editOrCreateResponse({
+            content: 'Cancelled',
+        });
     }
 
-    onError(__interaction: Interaction, error: unknown): Promise<any> | any {
+    onError(interaction: Interaction, error: unknown): Promise<any> | any {
         console.error(error);
     }
 }
@@ -77,6 +80,20 @@ export class BaseInteraction {
         return this.data.member ? this.data.member.user : this.data.user!;
     }
 
+    get member() {
+        return this.data.member;
+    }
+
+    getGuild() {
+        if (!this.data.guild_id) return Promise.resolve(null);
+        return API.cache.get(`guild:${this.data.guild_id}`);
+    }
+
+    getRoles() {
+        if (!this.member || !this.data.guild_id) return Promise.resolve([]);
+        return Promise.all(this.member.roles.map(x => API.cache.get(`role:${this.data.guild_id}:${x}`)));
+    }
+
     async getResponse() {
         if (this._promise) await this._promise;
         if (!this.sended) return Promise.resolve();
@@ -98,7 +115,7 @@ export class BaseInteraction {
         return this.createInteractionResponse(response);
     }
 
-    async createInteractionResponse(response: Exclude<Parameters<import('detritus-client-rest').Client['createInteractionResponse']>[2], number>['data']) {
+    createInteractionResponse(response: Exclude<Parameters<import('detritus-client-rest').Client['createInteractionResponse']>[2], number>['data']) {
         this.sendedAt = Date.now();
         this._promise = this.client.createInteractionResponse(this.data.id, this.data.token, {
             type: InteractionResponseType.ChannelMessageWithSource,
