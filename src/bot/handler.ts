@@ -76,8 +76,8 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
             if (!game) return;
             console.dir(event.d, { depth: 0 });
             console.log(interaction, interaction.customId);
-            if (interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,})/gi)) {
-                const [, , userId, opponentId, index] = interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,}),([0-9])/gi)![0].split(',');
+            if (interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)) {
+                const [, , userId, opponentId, index] = interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)![0].split(',');
                 const user = await API.cache.get(`user:${userId}`);
                 const opponent = await API.cache.get(`user:${opponentId}`);
                 if (!user || !opponent) {
