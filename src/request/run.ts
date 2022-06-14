@@ -1,8 +1,8 @@
 console.log('Starting...');
 
 import express from 'express';
-import { Client as RestClient, Constants } from 'detritus-client-rest';
 import multer from 'multer';
+import { Client as RestClient, Constants } from 'detritus-client-rest';
 import { config } from 'dotenv';
 import { join } from 'path';
 
@@ -35,7 +35,8 @@ app.all('*', checkAuth, async (req, res) => {
             path: endpoint,
             files,
         });
-        return res.status(200).send(result);
+        console.log(result, 'result!');
+        return res.status(200).json(result);
     } catch (e: any) {
         console.error(e, 'error', JSON.stringify(e.errors));
         const status = e.response ? e.response.status : 500;
