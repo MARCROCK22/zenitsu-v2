@@ -171,8 +171,6 @@ export class EventProcessor {
     async handleUserUpdate({ d: event }: GatewayUserUpdateDispatch) {
         return API.cache.post(`user:${event.id}`, event);
     }
-
-
 }
 
 /*
