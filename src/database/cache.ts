@@ -5,6 +5,7 @@ import { RedisManager } from './redis/manager.js';
 const cacheRouter = Router();
 
 cacheRouter.post('/:id', async (req, res) => {
+    console.log(`[CACHE] ${req.method} ${req.url}`);
     const id = req.params.id;
     const data = JSON.stringify(parsePost(id, req.body));
     const result = await RedisManager.set(id, data, Number(req.query.expire || 0));
@@ -12,6 +13,7 @@ cacheRouter.post('/:id', async (req, res) => {
 });
 
 cacheRouter.get('/:id', async (req, res) => {
+    console.log(`[CACHE] ${req.method} ${req.url}`);
     const id = req.params.id;
     const result = await RedisManager.get(id);
     res.json(JSON.parse(result ?? '{}'));

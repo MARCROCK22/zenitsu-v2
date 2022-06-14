@@ -34,3 +34,12 @@ export async function loadCommands() {
     }
     return commands;
 }
+
+export function splitArray<T>(array: T[], chunkSize: number): T[][] {
+    const results = [];
+    array = array.slice();
+    while (array.length) {
+        results.push(array.splice(0, chunkSize));
+    }
+    return results;
+}

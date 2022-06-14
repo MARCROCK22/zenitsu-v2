@@ -1,7 +1,5 @@
 import { ApplicationCommandOptionType } from 'discord-api-types/v10';
 import { inspect } from 'util';
-import { API } from '../../../../../api.js';
-console.log(inspect(API, { depth: null }));
 import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../base.js';
 
 @DCommandOptions({
