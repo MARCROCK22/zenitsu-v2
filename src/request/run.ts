@@ -76,7 +76,7 @@ function handleReason(req: express.Request, _res: express.Response, next: expres
 }
 
 function checkAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const host = req.get('host');
-    if (host === 'localhost:4444') return next();
+    const host = req.get('bot-token');
+    if (host === process.env.TOKEN) return next();
     return res.status(418).send('Unauthorized https://http.cat/418');
 }

@@ -18,6 +18,9 @@ config({
 
 export const restClient = new RestClient(process.env.TOKEN!, {
     baseUrl: 'http://localhost:4444',
+    headers: {
+        'bot-token': process.env.TOKEN,
+    }
 });
 
 function connectToGateway() {
