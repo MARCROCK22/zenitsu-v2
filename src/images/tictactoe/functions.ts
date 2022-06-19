@@ -62,12 +62,12 @@ export async function drawTictactoeBoard(board: { map: [string, number][]; turn:
         mode: number; y: number; x: number;
     } | undefined;
 
-    const findCases = {
-        X: findIndexByCase(board.map.map(x => x[0]), 'X'),
-        O: findIndexByCase(board.map.map(x => x[0]), 'O'),
-    };
+    const findCases = [
+        findIndexByCase(board.map.map(x => x[0]), 'X'),
+        findIndexByCase(board.map.map(x => x[0]), 'O'),
+    ];
 
-    switch (findCases.O === -1 ? findCases.X : findCases.O) {
+    switch (findCases.find(x => x !== -1)) {
         case 0:
             winMethod = {
                 mode: 1,
