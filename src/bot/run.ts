@@ -8,13 +8,15 @@ import {
 } from 'detritus-client-rest';
 import {
     BaseCommand,
-} from './interactions/chat/base.js';
+} from './interactions/base.js';
 import { loadCommands } from './functions.js';
 import { handleEvent } from './handler.js';
+import { initPuppeteer } from './puppetter.js';
 
 config({
     path: join(process.cwd(), '.env')
 });
+// initPuppeteer();
 
 export const restClient = new RestClient(process.env.TOKEN!, {
     baseUrl: 'http://localhost:4444',
@@ -31,8 +33,8 @@ function connectToGateway() {
     ws.onopen = async () => {
         commands.push(...await loadCommands());
         setTimeout(async () => {
-            await restClient.bulkOverwriteApplicationGuildCommands(process.env.APP_ID!, process.env.GUILD_TEST_ID!, commands);
-            await restClient.bulkOverwriteApplicationGuildCommands(process.env.APP_ID!, '723568330216308786', commands);
+            // await restClient.bulkOverwriteApplicationGuildCommands(process.env.APP_ID!, process.env.GUILD_TEST_ID!, commands);
+            // await restClient.bulkOverwriteApplicationGuildCommands(process.env.APP_ID!, '723568330216308786', commands);
         }, 2000);
         ws.send(JSON.stringify({ data: 'test', auth: process.env.TOKEN! }));
     };

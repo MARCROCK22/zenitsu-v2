@@ -5,7 +5,7 @@ import {
     InteractionResponseType, MessageFlags,
     APIMessageComponentInteraction
 } from 'discord-api-types/v10';
-import { API } from '../../../api.js';
+import { API } from '../../api.js';
 
 export class BaseCommand {
     name: string = '';
@@ -77,7 +77,7 @@ export class BaseInteraction {
     }
 
     get user() {
-        return this.data.member ? this.data.member.user : this.data.user!;
+        return this.data.member?.user || this.data.user!;
     }
 
     get member() {
@@ -181,12 +181,12 @@ export class BaseInteraction {
         return this.data.guild_locale;
     }
 
-    get userLocale() {
+    get locale() {
         return this.data.locale;
     }
 
     get publicLocale() {
-        return this.guildLocale || this.userLocale || 'en-US';
+        return this.guildLocale || this.locale || 'en-US';
     }
 
 }
@@ -200,7 +200,7 @@ export class ComponentInteraction extends BaseInteraction {
 
 export class Interaction extends BaseInteraction {
     readonly data!: APIChatInputApplicationCommandInteraction;
-    readonly options !: APIApplicationCommandInteractionDataOption[];
+    readonly options!: APIApplicationCommandInteractionDataOption[];
     constructor(client: import('detritus-client-rest').Client, interaction: APIChatInputApplicationCommandInteraction, options: APIApplicationCommandInteractionDataOption[]) {
         super(client, interaction);
         Object.defineProperties(this, {

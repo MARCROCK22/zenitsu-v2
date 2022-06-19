@@ -11,7 +11,7 @@ const defaultBoards = {
     ]
 } as Record<string, string[]>;
 
-// prismaClient.queuedGame.deleteMany({
+// prismaClient.game.deleteMany({
 //     where: {
 //         users: {
 //             has: '507367752391196682'
@@ -88,7 +88,6 @@ databaseRouter.post('/game/:userId/move', async (req, res) => {
             for (let i of data.moves)
                 game.play(Number(i.split(',')[1]));
             if (!game.canPlay(move)) return res.status(400).send('Invalid move');
-            console.log(game.finished, game.draw, game.winner, game.map);
             game.play(move);
             const updatedGame = await prismaClient.game.update({
                 where: {
@@ -98,13 +97,12 @@ databaseRouter.post('/game/:userId/move', async (req, res) => {
                     board: game.map,
                     turn: game.finished ? data.turn : (data.turn === 0 ? 1 : 0),
                     moves: {
-                        push: `${userId},${move}`
+                        push: `${userId},${move},${Math.floor(Math.random() * 9)}`
                     },
                     state: game.finished ? 'Finished' : 'Playing',
                     winner: !game.draw && game.finished ? userId : null,
                 }
             });
-            console.log(game.finished, game.draw, game.winner, game.map);
             // if (game.finished) await prismaClient.game.delete({
             //     where: {
             //         id: data.id

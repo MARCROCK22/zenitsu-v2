@@ -4,6 +4,9 @@ export const client = new Redis({
     port: 9001,
     host: 'localhost',
     enableReadyCheck: true,
+    retryStrategy(times) {
+        return Math.min(times * 50, 2000);
+    }
 });
 
 client.on('error', (err) => {

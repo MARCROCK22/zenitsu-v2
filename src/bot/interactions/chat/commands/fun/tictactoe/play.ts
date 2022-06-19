@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, ButtonStyle } from 'discord-api-types/v10';
 import { API } from '../../../../../../api.js';
-import { BaseCommand, DCommand, DCommandOptions, Interaction } from '../../../base.js';
+import { BaseCommand, DCommand, DCommandOptions, Interaction } from '../../../../base.js';
 
 @DCommand({
     description: 'Play TicTacToe',

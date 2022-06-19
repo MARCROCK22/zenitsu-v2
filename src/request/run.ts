@@ -5,6 +5,7 @@ import multer from 'multer';
 import { Client as RestClient, Constants } from 'detritus-client-rest';
 import { config } from 'dotenv';
 import { join } from 'path';
+import { handleReason, checkAuth, handleMultipart } from './middlewares.js';
 
 config({
     path: join(process.cwd(), '.env')
@@ -19,7 +20,7 @@ app.use(handleReason);
 
 app.all('*', checkAuth, async (req, res) => {
     try {
-        console.log(req.method, req.path, req.body);
+        console.log(req.method, req.path);
         const endpoint = req.path.replace('/api/v' + Constants.ApiVersion, '');
         const method = req.method.toLowerCase();
         const dataType = req.get('content-type')?.includes('multipart') ? 'multipart' : 'json';
@@ -35,12 +36,12 @@ app.all('*', checkAuth, async (req, res) => {
             path: endpoint,
             files,
         });
-        console.log(result, 'result!');
+        // console.log(result, 'result!');
         return res.status(200).json(result);
     } catch (e: any) {
         console.error(e, 'error', JSON.stringify(e.errors));
         const status = e.response ? e.response.status : 500;
-        const response = { status, error: e.toString() };
+        const response = { status, error: e.toString(), errors: e.errors };
         if (e.response) Object.assign(response, e.response.data);
         return res.status(status).json(response);
     }
@@ -49,34 +50,3 @@ app.all('*', checkAuth, async (req, res) => {
 app.listen(4444, () => {
     console.log('Server listening on port 4444');
 });
-
-function handleMultipart(req: express.Request) {
-    const body = JSON.parse(req.body.payload_json || '{}');
-    body.files = [];
-    const files = Array.isArray(req.files) ? req.files : Object.values(req.files || {}).flat();
-    files.forEach((f, i) => {
-        body.files[i] = {
-            filename: f.originalname,
-            value: f.buffer,
-        };
-    });
-    return body;
-}
-
-function handleReason(req: express.Request, _res: express.Response, next: express.NextFunction) {
-    const reason = req.get('x-audit-log-reason');
-    if (reason) {
-        if (req.method === 'GET' || req.path.includes('/bans') || req.path.includes('/prune')) {
-            req.query.reason = reason;
-        } else {
-            req.body.reason = reason;
-        }
-    }
-    next();
-}
-
-function checkAuth(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const host = req.get('bot-token');
-    if (host === process.env.TOKEN) return next();
-    return res.status(418).send('Unauthorized https://http.cat/418');
-}

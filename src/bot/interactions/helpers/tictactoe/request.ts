@@ -1,10 +1,12 @@
 import { Game } from '@prisma/client';
+import { AsyncQueue } from '@sapphire/async-queue';
 import { RequestTypes } from 'detritus-client-rest';
 import { ButtonStyle } from 'discord-api-types/v10';
 import { API } from '../../../../api.js';
 import { splitArray } from '../../../functions.js';
+import { asyncQueues } from '../../../handler.js';
 import { restClient } from '../../../run.js';
-import { ComponentInteraction } from '../../chat/base.js';
+import { ComponentInteraction } from '../../base.js';
 
 export async function request(interaction: ComponentInteraction, userId: string, opponentId: string, game: Game) {
     if (opponentId !== interaction.user.id) return;
@@ -26,6 +28,10 @@ export async function request(interaction: ComponentInteraction, userId: string,
     if (!user || !opponent)
         //this code should never be executed, but if it is, we want to know about it
         return interaction.followUp({ content: 'User not found, if you see this please report' });
+
+    const queue = new AsyncQueue();
+    asyncQueues[userId] = queue;
+    asyncQueues[opponentId] = queue;
 
     await API.database.acceptGame(interaction.user.id);
     console.log(user, opponent);
@@ -55,7 +61,7 @@ export async function request(interaction: ComponentInteraction, userId: string,
     }
 
     await interaction.editResponse({
-        content: game.turn === 0 ? `**${user.username}** vs ${opponent.username}` : `${user.username} vs **${opponent.username}**`,
+        content: !(game.moves.length % 2) ? `[X] ${user.username} vs **${opponent.username}**` : `[O] **${user.username}** vs ${opponent.username}`,
         components,
     });
 }

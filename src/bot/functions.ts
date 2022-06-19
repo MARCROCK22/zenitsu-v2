@@ -5,7 +5,7 @@ import {
     readdir,
     stat as fsStat
 } from 'fs/promises';
-import { BaseCommand } from './interactions/chat/base';
+import { BaseCommand } from './interactions/base';
 
 export async function getFiles(dir: string) {
     const files = await readdir(dir);

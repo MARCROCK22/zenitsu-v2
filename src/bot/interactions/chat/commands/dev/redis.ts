@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from 'discord-api-types/v10';
 import { API } from '../../../../../api.js';
-import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../base.js';
+import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../../base.js';
 
 @DCommandOptions({
     isEphemeral: false,

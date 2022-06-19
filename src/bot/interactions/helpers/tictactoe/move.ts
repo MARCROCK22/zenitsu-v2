@@ -3,8 +3,10 @@ import { RequestTypes } from 'detritus-client-rest';
 import { ButtonStyle, MessageFlags } from 'discord-api-types/v10';
 import { API } from '../../../../api.js';
 import { splitArray } from '../../../functions.js';
+import { asyncQueues } from '../../../handler.js';
+import { doRequest } from '../../../puppetter.js';
 import { restClient } from '../../../run.js';
-import { ComponentInteraction } from '../../chat/base.js';
+import { ComponentInteraction } from '../../base.js';
 
 export async function move(interaction: ComponentInteraction, userId: string, opponentId: string, index: number, game: Game) {
     let user = await API.cache.get(`user:${userId}`);
@@ -61,8 +63,22 @@ export async function move(interaction: ComponentInteraction, userId: string, op
     await interaction.editResponse({
         content: gameData.state === 'Finished'
             ? winner ? `${winner.username} won` : `Draw between ${user.username} and ${opponent.username}`
-            : gameData.turn === 0 ? `**${user.username}** vs ${opponent.username}` : `${user.username} vs **${opponent.username}**`,
-        components
+            : !(gameData.moves.length % 2) ? `[X] ${user.username} vs **${opponent.username}**` : `[O] **${user.username}** vs ${opponent.username}`,
+        components,
+        attachments: [],
+        files: [{
+            value: await API.images.tictactoe.drawGame(gameData),
+            filename: 'ttt.png'
+        }],
     });
-    if (gameData.state === 'Finished') await API.database.deleteGame(interaction.user.id);
+    if (gameData.state === 'Finished') {
+        delete asyncQueues[userId];
+        delete asyncQueues[opponentId];
+        await API.database.deleteGame(interaction.user.id);
+    }
+}
+
+async function drawGame(game: Game) {
+    const buffer = await doRequest(`http://localhost:3333/test?map=${JSON.stringify(game.board)}`);
+    return buffer;
 }

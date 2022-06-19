@@ -1,5 +1,5 @@
 import { API } from '../../../../api.js';
-import { ComponentInteraction } from '../../chat/base.js';
+import { ComponentInteraction } from '../../base.js';
 
 export async function cancel(interaction: ComponentInteraction, userId: string, opponentId: string) {
     if (![userId, opponentId].includes(interaction.user.id)) return;

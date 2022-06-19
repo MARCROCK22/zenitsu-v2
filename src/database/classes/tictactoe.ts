@@ -1,4 +1,4 @@
-const posicionesParaGanar = [
+export const posicionesParaGanar = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -44,7 +44,7 @@ export class GameTTT {
     play(played: number) {
         if (!this.canPlay(played)) throw new Error(`Can't play ${played}.`);
         this.map[played] = this.ficha;
-        if (posicionesParaGanar.find(p => p.every(x => this.map[x] == 'X')) || posicionesParaGanar.find(p => p.every(x => this.map[x] == 'O'))) {
+        if (findByCase(this.map, 'X') || findByCase(this.map, 'O')) {
             this.winner = this.turn;
             this.draw = false;
             return played;
@@ -60,4 +60,12 @@ export class GameTTT {
         return this.map[played] === '';
     }
 
+}
+
+export function findByCase(map: string[], f: 'X' | 'O') {
+    return posicionesParaGanar.find(p => p.every(x => map[x] === f));
+}
+
+export function findIndexByCase(map: string[], f: 'X' | 'O') {
+    return posicionesParaGanar.findIndex(p => p.every(x => map[x] === f));
 }

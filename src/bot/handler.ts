@@ -5,9 +5,12 @@ import {
     GatewayDispatchPayload,
     GatewayInteractionCreateDispatch,
 } from 'discord-api-types/v10';
-import { BaseCommand, BaseSubcommandGroup, ComponentInteraction, Interaction } from './interactions/chat/base.js';
+import { BaseCommand, BaseSubcommandGroup, ComponentInteraction, Interaction } from './interactions/base.js';
 import { restClient } from './run.js';
 import * as HelpersComponent from './interactions/helpers/index.js';
+import { AsyncQueue } from '@sapphire/async-queue';
+
+export const asyncQueues: Record<string, AsyncQueue> = {};
 
 export async function handleEvent(data: import('ws').MessageEvent, commands: BaseCommand[]) {
     const event = JSON.parse(data.data.toString()) as /* GatewayPackets.Packet */ GatewayDispatchPayload & { shard_id: number };
@@ -68,8 +71,11 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
             }
             break;
         case InteractionType.MessageComponent:
+            console.log(asyncQueues);
             const interaction = new ComponentInteraction(restClient, event.d);
             await interaction.deferUpdate();
+            const queue = asyncQueues[interaction.user.id];
+            if (queue) await queue.wait();
             const game = await API.database.getGame(interaction.user.id);
             if (!game) return;
             console.dir(event.d, { depth: 0 });
@@ -84,6 +90,7 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
                 const [, , userId, opponentId] = interaction.customId.match(/tictactoe,request,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
                 await HelpersComponent.tictactoe.request(interaction, userId, opponentId, game);
             }
+            if (queue) queue.shift();
             break;
     }
 }

@@ -1,5 +1,5 @@
 import __fetch from 'node-fetch';
-import { CachedGuild, CachedGuildMember, CachedUser } from './database/zod';
+import { CachedGuild, CachedGuildMember, CachedRole, CachedUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Game, GameType } from '@prisma/client';
 
@@ -7,17 +7,42 @@ export const baseURL = {
     cache: 'http://localhost:5555/cache',
     database: 'http://localhost:5555/database',
     base: 'http://localhost:5555',
+    images: {
+        base: 'http://localhost:3333',
+        tictactoe: 'http://localhost:3333/tictactoe',
+    },
 } as const;
 
-const fetch = createFetchQueued() as typeof __fetch;
+const fetch = __fetch;// createFetchQueued() as typeof __fetch;
+const queuedFetch: Record<string, typeof __fetch> = {};
 
 export const API = {
     ping() {
         return fetch(`${baseURL.base}/ping`).then(res => res.json());
     },
+    images: {
+        tictactoe: {
+            drawGame(game: Game) {
+                console.log(game.board, game.moves, game.moves.map(x => Number(x.split(',')[1])));
+                return fetch(baseURL.images.tictactoe + '/game', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        turn: game.turn,
+                        map: game.board.map((x, i) => {
+                            const move = game.moves.find(x => Number(x.split(',')[1]) === i);
+                            return [x, move ? move.split(',')[2] : null];
+                        })
+                    }),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                }).then(x => x.arrayBuffer());
+            }
+        }
+    },
     database: {
-        createGame(users: [string, string], { channelId, messageId, guildId, type }: { channelId: string, messageId: string, guildId: string, type: keyof typeof GameType }) {
-            return fetch(`${baseURL.database}/game`, {
+        async createGame(users: [string, string], { channelId, messageId, guildId, type }: { channelId: string, messageId: string, guildId: string, type: keyof typeof GameType }) {
+            return createFetchQueued('createGame')(`${baseURL.database}/game`, {
                 method: 'PUT',
                 body: JSON.stringify({
                     type,
@@ -99,6 +124,7 @@ export const API = {
         get(id: `user:${string}`): Promise<CachedUser | null>
         get(id: `guild:${string}`): Promise<CachedGuild | null>
         get(id: `member:${string}:${string}`): Promise<CachedGuildMember | null>
+        get(id: `role:${string}:${string}`): Promise<CachedRole | null>
         get(id: string): Promise<any>;
         delete(id: string): Promise<number>
         delete(id: string, withMatch: true): Promise<string[]>
@@ -107,9 +133,14 @@ export const API = {
     }
 };
 
-export function createFetchQueued() {
+export function createFetchQueued(id?: string) {
+    if (id && id in queuedFetch) return queuedFetch[id];
+    if (id) {
+        queuedFetch[id] = createFetchQueued();
+        return queuedFetch[id];
+    }
     const queue = new AsyncQueue();
-    return async function myQueuedFetch(...args: Parameters<typeof __fetch>) {
+    const func = async function myQueuedFetch(...args: Parameters<typeof __fetch>) {
         await queue.wait();
         try {
             return __fetch(...args);
@@ -117,4 +148,5 @@ export function createFetchQueued() {
             queue.shift();
         }
     };
+    return func;
 }
