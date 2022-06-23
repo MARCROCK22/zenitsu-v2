@@ -4,7 +4,6 @@ import { ButtonStyle, MessageFlags } from 'discord-api-types/v10';
 import { API } from '../../../../api.js';
 import { splitArray } from '../../../functions.js';
 import { asyncQueues } from '../../../handler.js';
-import { doRequest } from '../../../puppetter.js';
 import { restClient } from '../../../run.js';
 import { ComponentInteraction } from '../../base.js';
 
@@ -76,9 +75,4 @@ export async function move(interaction: ComponentInteraction, userId: string, op
         delete asyncQueues[opponentId];
         await API.database.deleteGame(interaction.user.id);
     }
-}
-
-async function drawGame(game: Game) {
-    const buffer = await doRequest(`http://localhost:3333/test?map=${JSON.stringify(game.board)}`);
-    return buffer;
 }

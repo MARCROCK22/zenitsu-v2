@@ -8,6 +8,7 @@ import express from 'express';
 import { cacheRouter } from './cache.js';
 import { databaseRouter } from './database.js';
 import { executeFunction } from './functions.js';
+import { checkAuth } from './middlewares.js';
 
 config({
     path: join(process.cwd(), '.env')
@@ -15,6 +16,7 @@ config({
 
 const app = express();
 
+app.use(checkAuth);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use('/cache', cacheRouter);

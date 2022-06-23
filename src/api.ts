@@ -18,7 +18,12 @@ const queuedFetch: Record<string, typeof __fetch> = {};
 
 export const API = {
     ping() {
-        return fetch(`${baseURL.base}/ping`).then(res => res.json());
+        return fetch(`${baseURL.base}/ping`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': process.env.KEYS!.split(',')[0]
+            }
+        }).then(res => res.json());
     },
     images: {
         tictactoe: {
@@ -35,6 +40,7 @@ export const API = {
                     }),
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': process.env.KEYS!.split(',')[0]
                     }
                 }).then(x => x.arrayBuffer());
             }
@@ -53,7 +59,8 @@ export const API = {
                     turn: Math.floor(Math.random() * 2),
                 }),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': process.env.KEYS!.split(',')[0]
                 }
             });
         },
@@ -64,6 +71,9 @@ export const API = {
         deleteGame(userId: string) {
             return fetch(`${baseURL.database}/game/${userId}`, {
                 method: 'DELETE',
+                headers: {
+                    'Authorization': process.env.KEYS!.split(',')[0]
+                }
             });
         },
         makeMove(userId: string, { type, move }: { type: keyof typeof GameType, move: string }) {
@@ -74,13 +84,16 @@ export const API = {
                     move
                 }),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Authorization': process.env.KEYS!.split(',')[0]
                 }
             });
         },
         acceptGame(userId: string) {
             return fetch(`${baseURL.database}/game/${userId}/accept`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': process.env.KEYS!.split(',')[0]
+                }
             });
         }
     },
@@ -90,12 +103,17 @@ export const API = {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
+                    'Authorization': process.env.KEYS!.split(',')[0]
                 }
             }).then(res => res.text());
         },
         get(id: string) {
-            return fetch(baseURL.cache + '/' + encodeURIComponent(id))
+            return fetch(baseURL.cache + '/' + encodeURIComponent(id), {
+                headers: {
+                    'Authorization': process.env.KEYS!.split(',')[0]
+                }
+            })
                 .then(res => res.text())
                 .then(res => {
                     const json = res ? JSON.parse(res) : null;
@@ -105,11 +123,18 @@ export const API = {
         },
         delete(id: string, withMatch: boolean) {
             return fetch(baseURL.cache + '/' + encodeURIComponent(id) + `?match=${!!withMatch}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: {
+                    'Authorization': process.env.KEYS!.split(',')[0]
+                }
             }).then(res => res.text());
         },
         scan(query: string) {
-            return fetch(baseURL.cache + '/scan/' + encodeURIComponent(query))
+            return fetch(baseURL.cache + '/scan/' + encodeURIComponent(query), {
+                headers: {
+                    'Authorization': process.env.KEYS!.split(',')[0]
+                }
+            })
                 .then(res => res.text())
                 .then(res => {
                     const json = res ? JSON.parse(res) : null;

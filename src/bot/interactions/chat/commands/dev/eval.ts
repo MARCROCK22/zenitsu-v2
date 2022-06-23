@@ -1,7 +1,6 @@
 import { ApplicationCommandOptionType } from 'discord-api-types/v10';
 import { inspect } from 'util';
 import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../../base.js';
-import { doRequest } from '../../../../puppetter.js';
 
 @DCommandOptions({
     isEphemeral: false,
@@ -49,10 +48,6 @@ export default class Test extends BaseCommand {
             let res = await eval(code);
             await interaction.editOrCreateResponse({
                 content: '```js\n' + inspect(res) + '```',
-                files: [{
-                    value: await doRequest('http://localhost:3333/test?map=%5B\'X\'%2C%20\'O\'%5D') as Buffer,
-                    filename: 'ttt.png'
-                }]
             });
         } catch (e) {
             console.log(e);
