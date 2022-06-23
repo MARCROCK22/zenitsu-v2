@@ -2,6 +2,12 @@ import __fetch from 'node-fetch';
 import { CachedGuild, CachedGuildMember, CachedRole, CachedUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Game, GameType } from '@prisma/client';
+import { join } from 'path';
+import { config } from 'dotenv';
+
+config({
+    path: join(process.cwd(), '.env')
+});
 
 export const baseURL = {
     cache: 'http://localhost:5555/cache',
@@ -13,6 +19,7 @@ export const baseURL = {
     },
 } as const;
 
+const Authorization = process.env.KEYS!.split(',')[0];
 const fetch = __fetch;// createFetchQueued() as typeof __fetch;
 const queuedFetch: Record<string, typeof __fetch> = {};
 
@@ -20,14 +27,13 @@ export const API = {
     ping() {
         return fetch(`${baseURL.base}/ping`, {
             headers: {
-                'Authorization': process.env.KEYS!.split(',')[0]
+                Authorization
             }
         }).then(res => res.json());
     },
     images: {
         tictactoe: {
             drawGame(game: Game) {
-                console.log(game.board, game.moves, game.moves.map(x => Number(x.split(',')[1])));
                 return fetch(baseURL.images.tictactoe + '/game', {
                     method: 'POST',
                     body: JSON.stringify({
@@ -39,7 +45,7 @@ export const API = {
                     }),
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': process.env.KEYS!.split(',')[0]
+                        Authorization
                     }
                 }).then(x => x.arrayBuffer());
             }
@@ -59,7 +65,7 @@ export const API = {
                 }),
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             });
         },
@@ -71,7 +77,7 @@ export const API = {
             return fetch(`${baseURL.database}/game/${userId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             });
         },
@@ -83,7 +89,7 @@ export const API = {
                     move
                 }),
                 headers: {
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             });
         },
@@ -91,7 +97,7 @@ export const API = {
             return fetch(`${baseURL.database}/game/${userId}/accept`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             });
         }
@@ -103,14 +109,14 @@ export const API = {
                 body: JSON.stringify(data),
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             }).then(res => res.text());
         },
         get(id: string) {
             return fetch(baseURL.cache + '/' + encodeURIComponent(id), {
                 headers: {
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             })
                 .then(res => res.text())
@@ -124,14 +130,14 @@ export const API = {
             return fetch(baseURL.cache + '/' + encodeURIComponent(id) + `?match=${!!withMatch}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             }).then(res => res.text());
         },
         scan(query: string) {
             return fetch(baseURL.cache + '/scan/' + encodeURIComponent(query), {
                 headers: {
-                    'Authorization': process.env.KEYS!.split(',')[0]
+                    Authorization
                 }
             })
                 .then(res => res.text())

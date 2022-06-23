@@ -1,8 +1,8 @@
 console.log('Starting...');
 
-import { WebSocket } from 'ws';
 import { config } from 'dotenv';
 import { join } from 'path';
+import { WebSocket } from 'ws';
 import {
     Client as RestClient
 } from 'detritus-client-rest';
