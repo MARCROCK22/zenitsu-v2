@@ -11,12 +11,10 @@ import {
 } from './interactions/base.js';
 import { loadCommands } from './functions.js';
 import { handleEvent } from './handler.js';
-import { initPuppeteer } from './puppetter.js';
 
 config({
     path: join(process.cwd(), '.env')
 });
-// initPuppeteer();
 
 export const restClient = new RestClient(process.env.TOKEN!, {
     baseUrl: 'http://localhost:4444',
