@@ -20,7 +20,6 @@ export const API = {
     ping() {
         return fetch(`${baseURL.base}/ping`, {
             headers: {
-                'Content-Type': 'application/json',
                 'Authorization': process.env.KEYS!.split(',')[0]
             }
         }).then(res => res.json());
