@@ -148,7 +148,6 @@ export const API = {
                 });
         }
     } as {
-        post(id: string, data: any, ex?: number): Promise<string>;
         get(id: `user:${string}`): Promise<CachedUser | null>
         get(id: `guild:${string}`): Promise<CachedGuild | null>
         get(id: `member:${string}:${string}`): Promise<CachedGuildMember | null>
@@ -156,6 +155,7 @@ export const API = {
         get(id: `message:${string}:${string}`): Promise<CachedMessage | null>
         get(id: `channel:${string}:${string}`): Promise<CachedChannel | null>
         get(id: string): Promise<any>;
+        post(id: string, data: any, ex?: number): Promise<string>;
         delete(id: string): Promise<number>
         delete(id: string, withMatch: true): Promise<string[]>
         delete(id: string, withMatch: boolean): Promise<number>;
