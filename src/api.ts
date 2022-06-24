@@ -149,8 +149,6 @@ export const API = {
         }
     } as {
         post(id: string, data: any, ex?: number): Promise<string>;
-        //TODO: types overload for member, role, channel, user, guild, etc...
-        //or make functions like getMember, getRole, getChannel, getUser, etc...
         get(id: `user:${string}`): Promise<CachedUser | null>
         get(id: `guild:${string}`): Promise<CachedGuild | null>
         get(id: `member:${string}:${string}`): Promise<CachedGuildMember | null>
