@@ -6,9 +6,9 @@
 	<br/>
 	<p>
 		<a href="https://discord.gg/hbSahh8"><img src="https://img.shields.io/discord/645463565813284865?color=7289DA&label=DISCORD&logo=DISCORD&style=for-the-badge" alt="Discord server" /></a>
-		<a href="https://github.com/MARCROCK22/zenitsu"><img src="https://img.shields.io/github/package-json/v/MARCROCK22/zenitsu?logo=Pinboard&style=for-the-badge" alt="Zenitsu version" /></a>
-		<a href="https://github.com/MARCROCK22/zenitsu/graphs/contributors"><img src="https://img.shields.io/github/contributors/MARCROCK22/zenitsu.svg?logo=Github&style=for-the-badge" alt="Contributors" /></a>
-		<a href="https://contributors-img.web.app/image?repo=marcrock22/zenitsu"><img src="https://contributors-img.web.app/image?repo=marcrock22/zenitsu" alt="Contributors-img" /></a>
+		<a href="https://github.com/MARCROCK22/zenitsu-v2"><img src="https://img.shields.io/github/package-json/v/MARCROCK22/zenitsu-v2?logo=Pinboard&style=for-the-badge" alt="Zenitsu version" /></a>
+		<a href="https://github.com/MARCROCK22/zenitsu-v2/graphs/contributors"><img src="https://img.shields.io/github/contributors/MARCROCK22/zenitsu-v2.svg?logo=Github&style=for-the-badge" alt="Contributors" /></a>
+		<a href="https://contributors-img.web.app/image?repo=MARCROCK22/zenitsu-v2"><img src="https://contributors-img.web.app/image?repo=MARCROCK22/zenitsu-v2" alt="Contributors-img" /></a>
 		<br/>
 		<a href="https://top.gg/bot/721080193678311554" >
 			<img src="https://top.gg/api/widget/status/721080193678311554.svg"  alt="topgg"/>
