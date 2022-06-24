@@ -22,6 +22,9 @@
 		<a href="https://top.gg/bot/721080193678311554" >
 			<img src="https://top.gg/api/widget/owner/721080193678311554.svg"  alt="owner"/>
 		</a>
+		<a href="https://lanyard.cnrad.dev/api/507367752391196682?borderRadius=22px&idleMessage=Sleeping%20probably">
+			<img src="https://lanyard.cnrad.dev/api/507367752391196682?borderRadius=22px&idleMessage=Sleeping%20probably" alt="Presence">
+		</a>
 	</p>
 </div>
 
