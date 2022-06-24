@@ -96,8 +96,8 @@ export class EventProcessor {
 
     async handleMessageUpdate(event: GatewayMessageUpdateDispatchData) {
         if (event.guild_id) {
-            const message = await API.cache.get(`message:${event.guild_id}:${event.id}`);
-            if (message) await API.cache.post(`old_message:${event.guild_id}:${event.id}`, event, 60);
+            // const message = await API.cache.get(`message:${event.guild_id}:${event.id}`);
+            // if (message) await API.cache.post(`old_message:${event.guild_id}:${event.id}`, event, 60);
             await API.cache.post(`message:${event.guild_id}:${event.id}`, event);
             if (event.member && event.author) await API.cache.post(`member:${event.guild_id}:${event.author.id}`, { user: event.author, ...event.member });
             if (event.author) await this.handleUserUpdate(event.author);
