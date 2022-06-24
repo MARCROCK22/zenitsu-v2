@@ -5,7 +5,7 @@ import {
     GatewayDispatchPayload,
     GatewayInteractionCreateDispatch,
 } from 'discord-api-types/v10';
-import { BaseCommand, BaseSubcommandGroup, ComponentInteraction, Interaction } from './interactions/base.js';
+import { BaseCommand, BaseSubcommandGroup, ComponentInteraction, ChatInputInteraction } from './interactions/base.js';
 import { restClient } from './run.js';
 import * as HelpersComponent from './interactions/helpers/index.js';
 import { AsyncQueue } from '@sapphire/async-queue';
@@ -54,7 +54,7 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
                     const __commandBot = commands.find(x => x.name === interactionEvent.data.name);
                     if (!__commandBot) return console.error(`Command ${interactionEvent.data.name} not found`);
                     const [data, command] = getCommand(interactionEvent.data, __commandBot);
-                    const interaction = new Interaction(restClient, interactionEvent, data.options);
+                    const interaction = new ChatInputInteraction(restClient, interactionEvent, data.options);
                     if (command.needDefer) await interaction.defer(command.isEphemeral);
                     try {
                         if (await command.onBefore(interaction)) await command.run(interaction);

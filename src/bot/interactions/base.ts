@@ -14,21 +14,21 @@ export class BaseCommand {
     options: APIApplicationCommandOption[] | (BaseCommand | BaseSubcommandGroup)[] = [];
     needDefer = false;
     isEphemeral = false;
-    run(interaction: Interaction): Promise<any> | any {
+    run(interaction: ChatInputInteraction): Promise<any> | any {
         console.log(interaction);
     }
 
-    onBefore(_interaction: Interaction): Promise<boolean> | boolean {
+    onBefore(_interaction: ChatInputInteraction): Promise<boolean> | boolean {
         return true;
     }
 
-    onCancel(interaction: Interaction): Promise<any> | any {
+    onCancel(interaction: ChatInputInteraction): Promise<any> | any {
         return interaction.editOrCreateResponse({
             content: 'Cancelled',
         });
     }
 
-    onError(_interaction: Interaction, error: unknown): Promise<any> | any {
+    onError(_interaction: ChatInputInteraction, error: unknown): Promise<any> | any {
         console.error(error);
     }
 }
@@ -198,7 +198,7 @@ export class ComponentInteraction extends BaseInteraction {
     }
 }
 
-export class Interaction extends BaseInteraction {
+export class ChatInputInteraction extends BaseInteraction {
     readonly data!: APIChatInputApplicationCommandInteraction;
     readonly options!: APIApplicationCommandInteractionDataOption[];
     constructor(client: import('detritus-client-rest').Client, interaction: APIChatInputApplicationCommandInteraction, options: APIApplicationCommandInteractionDataOption[]) {

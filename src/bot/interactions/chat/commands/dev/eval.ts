@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType } from 'discord-api-types/v10';
 import { inspect } from 'util';
-import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../../base.js';
+import { BaseCommand, DCommand, DCommandOptions, type ChatInputInteraction } from '../../../base.js';
 
 @DCommandOptions({
     isEphemeral: false,
@@ -18,17 +18,17 @@ import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../
 })
 export default class Test extends BaseCommand {
 
-    onBefore(interaction: Interaction): boolean | Promise<boolean> {
+    onBefore(interaction: ChatInputInteraction): boolean | Promise<boolean> {
         return interaction.user.id === '507367752391196682';
     }
 
-    onCancel(interaction: Interaction) {
+    onCancel(interaction: ChatInputInteraction) {
         return interaction.editOrCreateResponse({
             content: 'no.'
         });
     }
 
-    async run(interaction: Interaction) {
+    async run(interaction: ChatInputInteraction) {
 
         // try {
         //     const page = await browser.newPage();

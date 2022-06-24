@@ -1,5 +1,5 @@
 import { API } from '../../../../../api.js';
-import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../../base.js';
+import { BaseCommand, DCommand, DCommandOptions, type ChatInputInteraction } from '../../../base.js';
 
 @DCommandOptions({
     isEphemeral: false,
@@ -10,7 +10,7 @@ import { BaseCommand, DCommand, DCommandOptions, type Interaction } from '../../
     description: 'ponga!',
 })
 export default class Ping extends BaseCommand {
-    async run(interaction: Interaction) {
+    async run(interaction: ChatInputInteraction) {
         const ping = await API.ping() as { database: number; redis: number; };
         return interaction.editOrCreateResponse({
             content:

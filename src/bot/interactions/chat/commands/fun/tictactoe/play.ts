@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionType, ButtonStyle } from 'discord-api-types/v10';
 import { API } from '../../../../../../api.js';
-import { BaseCommand, DCommand, DCommandOptions, Interaction } from '../../../../base.js';
+import { BaseCommand, DCommand, DCommandOptions, type ChatInputInteraction } from '../../../../base.js';
 
 @DCommand({
     description: 'Play TicTacToe',
@@ -17,7 +17,7 @@ import { BaseCommand, DCommand, DCommandOptions, Interaction } from '../../../..
     needDefer: true,
 })
 export class Play extends BaseCommand {
-    async run(interaction: Interaction) {
+    async run(interaction: ChatInputInteraction) {
         if (!interaction.data.guild_id) return interaction.editOrCreateResponse({ content: 'no guild xdxd' });
         if (!interaction.getMember('member')) return interaction.editOrCreateResponse({
             content: 'You need to specify a member to play with!',
