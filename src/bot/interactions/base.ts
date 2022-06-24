@@ -18,7 +18,7 @@ export class BaseCommand {
         console.log(interaction);
     }
 
-    onBefore(interaction: Interaction): Promise<boolean> | boolean {
+    onBefore(_interaction: Interaction): Promise<boolean> | boolean {
         return true;
     }
 
@@ -28,7 +28,7 @@ export class BaseCommand {
         });
     }
 
-    onError(interaction: Interaction, error: unknown): Promise<any> | any {
+    onError(_interaction: Interaction, error: unknown): Promise<any> | any {
         console.error(error);
     }
 }

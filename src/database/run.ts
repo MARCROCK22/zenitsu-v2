@@ -22,7 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/cache', cacheRouter);
 app.use('/database', databaseRouter);
 
-app.get('/ping', async (req, res) => {
+app.get('/ping', async (_req, res) => {
     const databasePing
         = (await executeFunction(() => prismaClient.$runCommandRaw({ ping: 1 }))).took;
     const redisPing

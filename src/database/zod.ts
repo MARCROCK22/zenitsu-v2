@@ -38,3 +38,21 @@ export const roleSchema = z.object({
 });
 
 export type CachedRole = z.infer<typeof roleSchema>;
+
+export const channelSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    guild_id: z.string(),
+    type: z.number()
+});
+
+export type CachedChannel = z.infer<typeof channelSchema>;
+
+export const messageSchema = z.object({
+    id: z.string(),
+    content: z.string(),
+    author: userSchema
+});
+
+
+export type CachedMessage = z.infer<typeof messageSchema>;

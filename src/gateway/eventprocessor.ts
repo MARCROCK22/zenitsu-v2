@@ -1,13 +1,14 @@
 import {
-    GatewayDispatchPayload, GatewayGuildCreateDispatch,
-    GatewayGuildDeleteDispatch, GatewayGuildRoleCreateDispatch,
-    GatewayGuildUpdateDispatch, GatewayMessageCreateDispatch,
-    GatewayGuildRoleUpdateDispatch, GatewayChannelUpdateDispatch,
-    GatewayChannelDeleteDispatch, GatewayGuildMemberUpdateDispatch,
-    GatewayMessageDeleteDispatch, GatewayMessageDeleteBulkDispatch,
-    GatewayGuildRoleDeleteDispatch, GatewayChannelCreateDispatch,
-    ChannelType, GatewayUserUpdateDispatch,
-    GatewayInteractionCreateDispatch,
+    GatewayDispatchPayload, GatewayGuildCreateDispatchData,
+    GatewayGuildDeleteDispatchData, GatewayGuildRoleCreateDispatchData,
+    GatewayGuildUpdateDispatchData, GatewayMessageCreateDispatchData,
+    GatewayGuildRoleUpdateDispatchData, GatewayChannelUpdateDispatchData,
+    GatewayChannelDeleteDispatchData, GatewayGuildMemberUpdateDispatchData,
+    GatewayMessageDeleteDispatchData, GatewayMessageDeleteBulkDispatchData,
+    GatewayGuildRoleDeleteDispatchData, GatewayChannelCreateDispatchData,
+    GatewayInteractionCreateDispatchData, GatewayMessageUpdateDispatchData,
+    ChannelType, APIChannel, GatewayUserUpdateDispatchData,
+    InteractionType, ApplicationCommandType
 } from 'discord-api-types/v10';
 import { API } from '../api.js';
 
@@ -15,125 +16,162 @@ export class EventProcessor {
     async handle(event: GatewayDispatchPayload) {
         switch (event.t) {
             case 'GUILD_CREATE':
-                await this.handleGuildCreate(event);
+                await this.handleGuildCreate(event.d);
                 break;
             case 'GUILD_UPDATE':
-                await this.handleGuildUpdate(event);
+                await this.handleGuildUpdate(event.d);
                 break;
             case 'GUILD_DELETE':
-                await this.handleGuildDelete(event);
-                break;
-            case 'MESSAGE_CREATE':
-                await this.handleMessageCreate(event);
+                await this.handleGuildDelete(event.d);
                 break;
             case 'INTERACTION_CREATE':
-                await this.handleInteractionCreate(event);
+                await this.handleInteractionCreate(event.d);
+                break;
+            case 'MESSAGE_CREATE':
+                await this.handleMessageCreate(event.d);
+                break;
+            case 'MESSAGE_UPDATE':
+                await this.handleMessageUpdate(event.d);
                 break;
             case 'MESSAGE_DELETE':
-                await this.handleMessageDelete(event);
+                await this.handleMessageDelete(event.d);
                 break;
             case 'MESSAGE_DELETE_BULK':
-                await this.handleMessageDeleteBulk(event);
+                await this.handleMessageDeleteBulk(event.d);
                 break;
             case 'GUILD_ROLE_CREATE':
             case 'GUILD_ROLE_UPDATE':
-                await this.handleRoleCreate(event);
+                await this.handleRoleCreate(event.d);
                 break;
             case 'GUILD_ROLE_DELETE':
-                await this.handleRoleDelete(event);
+                await this.handleRoleDelete(event.d);
                 break;
             case 'CHANNEL_CREATE':
             case 'CHANNEL_UPDATE':
-                await this.handleChannelCreate(event);
+                await this.handleChannelCreate(event.d);
                 break;
             case 'CHANNEL_DELETE':
-                await this.handleChannelDelete(event);
+                await this.handleChannelDelete(event.d);
                 break;
             case 'GUILD_MEMBER_UPDATE':
-                await this.handleGuildMemberUpdate(event);
-                break;
-            case 'USER_UPDATE':
-                await this.handleUserUpdate(event);
+                await this.handleGuildMemberUpdate(event.d);
                 break;
         }
     }
 
-    async handleInteractionCreate({ d: event }: GatewayInteractionCreateDispatch) {
+    async handleInteractionCreate(event: GatewayInteractionCreateDispatchData) {
         if (event.guild_id) {
-            await API.cache.post(`message:${event.guild_id}:${event.id}`, event);
-            await API.cache.post(`user:${event.member?.user.id}`, event.member?.user);
+            if (event.message) await API.cache.post(`message:${event.guild_id}:${event.id}`, event.message);
             if (event.member) await API.cache.post(`member:${event.guild_id}:${event.member?.user.id}`, event.member);
-            console.log('interaction', JSON.stringify(event, null, 2));
-            if ('message' in event && event.message && event.message.interaction) {
-                if (event.message.interaction.user) await API.cache.post(`user:${event.message.interaction.user.id}`, event.message.interaction.user);
+            if (event.member?.user) await this.handleUserUpdate(event.member.user);
+            if (event.user) await this.handleUserUpdate(event.user);
+            if (event.type === InteractionType.ApplicationCommand && event.data.type === ApplicationCommandType.ChatInput) {
+                for (let value of Object.values(event.data.resolved?.users ?? {})) {
+                    await this.handleUserUpdate(value);
+                }
+                for (let value of Object.values(event.data.resolved?.channels ?? {})) {
+                    await this.handleChannelCreate({
+                        ...value,
+                        guild_id: event.guild_id!
+                    } as APIChannel);
+                }
+                for (let [key, value] of Object.entries(event.data.resolved?.members ?? {})) {
+                    await this.handleGuildMemberUpdate({
+                        ...value,
+                        user: event.data.resolved?.users![key]!,
+                        guild_id: event.guild_id
+                    });
+                }
             }
         }
     }
 
-    async handleMessageCreate({ d: event }: GatewayMessageCreateDispatch) {
+    async handleMessageCreate(event: GatewayMessageCreateDispatchData) {
         if (event.guild_id) {
             await API.cache.post(`message:${event.guild_id}:${event.id}`, event);
-            await API.cache.post(`user:${event.author.id}`, event.author);
             if (event.member) await API.cache.post(`member:${event.guild_id}:${event.author.id}`, { user: event.author, ...event.member });
+            await this.handleUserUpdate(event.author);
         }
     }
 
-    handleMessageDelete({ d: event }: GatewayMessageDeleteDispatch) {
-        if (event.guild_id)
-            return API.cache.delete(`message:${event.guild_id}:${event.id}`, false);
+    async handleMessageUpdate(event: GatewayMessageUpdateDispatchData) {
+        if (event.guild_id) {
+            await API.cache.post(`message:${event.guild_id}:${event.id}`, event);
+            if (event.member && event.author) await API.cache.post(`member:${event.guild_id}:${event.author.id}`, { user: event.author, ...event.member });
+            if (event.author) await this.handleUserUpdate(event.author);
+        }
     }
 
-    async handleMessageDeleteBulk({ d: event }: GatewayMessageDeleteBulkDispatch) {
+    async handleMessageDelete(event: GatewayMessageDeleteDispatchData) {
+        if (event.guild_id)
+            await API.cache.delete(`message:${event.guild_id}:${event.id}`, false) ?? 0;
+    }
+
+    async handleMessageDeleteBulk(event: GatewayMessageDeleteBulkDispatchData) {
         //probably python
         if (event.guild_id)
             for (let i of event.ids)
-                await API.cache.delete(`message:${event.guild_id}:${i}`, false);
+                await this.handleMessageDelete({
+                    channel_id: event.channel_id,
+                    guild_id: event.guild_id,
+                    id: i
+                });
     }
 
-    async handleGuildDelete({ d: event }: GatewayGuildDeleteDispatch) {
+    async handleGuildDelete(event: GatewayGuildDeleteDispatchData) {
         await API.cache.delete(`guild:${event.id}`, false);
         await API.cache.delete(`*:${event.id}:*`, true);
     }
 
-    async handleGuildUpdate({ d: event }: GatewayGuildUpdateDispatch) {
+    async handleGuildUpdate(event: GatewayGuildUpdateDispatchData) {
         await API.cache.post(`guild:${event.id}`, event);
     }
 
-    async handleGuildCreate({ d: event }: GatewayGuildCreateDispatch) {
+    async handleGuildCreate(event: GatewayGuildCreateDispatchData) {
 
         await API.cache.post(`guild:${event.id}`, event);
 
-        for (let i of event.roles) await API.cache.post(`role:${event.id}:${i.id}`, i);
+        for (let i of event.roles) await this.handleRoleCreate({
+            guild_id: event.id,
+            role: i
+        });
 
-        for (let i of event.channels ?? []) await API.cache.post(`channel:${event.id}:${i.id}`, i);
+        for (let i of event.channels ?? []) await this.handleChannelCreate({
+            ...i,
+            guild_id: event.id
+        } as APIChannel);
 
-        for (let i of event.threads ?? []) await API.cache.post(`channel:${event.id}:${i.id}`, i);
+        for (let i of event.threads ?? []) await this.handleChannelCreate({
+            ...i,
+            guild_id: event.id
+        } as APIChannel);
 
-        for (let i of event.members ?? []) {
-            if (i.user) {
-                await API.cache.post(`member:${event.id}:${i.user.id}`, i);
-                await API.cache.post(`user:${i.user.id}`, i.user);
-            } else console.log('No user for member', i);
+        for (let i of event.members ?? []) if (i.user) {
+            await this.handleUserUpdate(i.user!);
+            await this.handleGuildMemberUpdate({
+                ...i,
+                user: i.user,
+                guild_id: event.id
+            });
         }
-
     }
 
-    handleRoleCreate({ d: event }: GatewayGuildRoleCreateDispatch | GatewayGuildRoleUpdateDispatch) {
-        return API.cache.post(`role:${event.guild_id}:${event.role.id}`, event.role);
+    async handleRoleCreate(event: GatewayGuildRoleCreateDispatchData | GatewayGuildRoleUpdateDispatchData) {
+        await API.cache.post(`role:${event.guild_id}:${event.role.id}`, event.role);
     }
 
-    async handleRoleDelete({ d: event }: GatewayGuildRoleDeleteDispatch) {
+    async handleRoleDelete(event: GatewayGuildRoleDeleteDispatchData) {
         await API.cache.delete(`role:${event.guild_id}:${event.role_id}`, false);
         for (let i of await API.cache.scan(`member:${event.guild_id}:*`) ?? []) {
-            const member = await API.cache.get(i);
-            if (member.roles.includes(event.role_id)) {
+            const member = await API.cache.get(i as `member:${string}:${string}`);
+            if (member && member.roles.includes(event.role_id)) {
                 member.roles = member.roles.filter((r: string) => r !== event.role_id);
                 await API.cache.post(i, member);
             }
         }
     }
 
-    async handleChannelCreate({ d: event }: GatewayChannelCreateDispatch | GatewayChannelUpdateDispatch) {
+    async handleChannelCreate(event: GatewayChannelCreateDispatchData | GatewayChannelUpdateDispatchData) {
         switch (event.type) {
             case ChannelType.GuildStageVoice:
             case ChannelType.GuildVoice:
@@ -148,7 +186,7 @@ export class EventProcessor {
         }
     }
 
-    async handleChannelDelete({ d: event }: GatewayChannelDeleteDispatch) {
+    async handleChannelDelete(event: GatewayChannelDeleteDispatchData) {
         switch (event.type) {
             case ChannelType.GuildStageVoice:
             case ChannelType.GuildVoice:
@@ -163,14 +201,14 @@ export class EventProcessor {
         }
     }
 
-    async handleGuildMemberUpdate({ d: event }: GatewayGuildMemberUpdateDispatch) {
-        await API.cache.post(`user:${event.user.id}`, event.user);
-        return API.cache.post(`member:${event.guild_id}:${event.user.id}`, event);
+    async handleGuildMemberUpdate(event: GatewayGuildMemberUpdateDispatchData) {
+        await API.cache.post(`member:${event.guild_id}:${event.user.id}`, event);
     }
 
-    async handleUserUpdate({ d: event }: GatewayUserUpdateDispatch) {
-        return API.cache.post(`user:${event.id}`, event);
+    async handleUserUpdate(event: GatewayUserUpdateDispatchData) {
+        await API.cache.post(`user:${event.id}`, event);
     }
+
 }
 
 /*
