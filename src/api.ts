@@ -1,5 +1,5 @@
 import __fetch from 'node-fetch';
-import { CachedGuild, CachedGuildMember, CachedRole, CachedUser } from './database/zod';
+import { CachedChannel, CachedGuild, CachedGuildMember, CachedMessage, CachedRole, CachedUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
 import { Game, GameType } from '@prisma/client';
 import { join } from 'path';
@@ -103,8 +103,8 @@ export const API = {
         }
     },
     cache: {
-        post(id: string, data: any) {
-            return fetch(baseURL.cache + '/' + encodeURIComponent(id), {
+        post(id: string, data: any, ex: number = 0) {
+            return fetch(baseURL.cache + '/' + encodeURIComponent(id) + '?expire=' + ex, {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {
@@ -148,13 +148,15 @@ export const API = {
                 });
         }
     } as {
-        post(id: string, data: any): Promise<string>;
+        post(id: string, data: any, ex?: number): Promise<string>;
         //TODO: types overload for member, role, channel, user, guild, etc...
         //or make functions like getMember, getRole, getChannel, getUser, etc...
         get(id: `user:${string}`): Promise<CachedUser | null>
         get(id: `guild:${string}`): Promise<CachedGuild | null>
         get(id: `member:${string}:${string}`): Promise<CachedGuildMember | null>
         get(id: `role:${string}:${string}`): Promise<CachedRole | null>
+        get(id: `message:${string}:${string}`): Promise<CachedMessage | null>
+        get(id: `channel:${string}:${string}`): Promise<CachedChannel | null>
         get(id: string): Promise<any>;
         delete(id: string): Promise<number>
         delete(id: string, withMatch: true): Promise<string[]>
