@@ -25,7 +25,7 @@ export async function move(interaction: ComponentInteraction, userId: string, op
     }
 
     if (!user || !opponent) {
-        //this code should never be executed, but if it is, we want to know about it{
+        //this code should never be executed, but if it is, we want to know about it
         await interaction.followUp({ content: 'User not found, if you see this please report' });
         return false;
     }
