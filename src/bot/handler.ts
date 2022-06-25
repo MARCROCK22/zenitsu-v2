@@ -82,7 +82,15 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
             console.log(interaction, interaction.customId);
             if (interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)) {
                 const [, , userId, opponentId, index] = interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)![0].split(',');
-                await HelpersComponent.tictactoe.move(interaction, userId, opponentId, parseInt(index), game);
+                const shouldDeleteGame = await HelpersComponent.tictactoe.move(interaction, userId, opponentId, parseInt(index), game);
+                if (shouldDeleteGame) {
+                    await API.database.deleteGame(interaction.user.id);
+                    while (asyncQueues[userId].remaining) asyncQueues[userId].shift();
+                    delete asyncQueues[userId];
+                    while (asyncQueues[opponentId].remaining) asyncQueues[opponentId].shift();
+                    delete asyncQueues[opponentId];
+                    return;
+                }
             } else if (interaction.customId.match(/tictactoe,cancel,([0-9]{17,}),([0-9]{17,})/gi)) {
                 const [, , userId, opponentId] = interaction.customId.match(/tictactoe,cancel,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
                 await HelpersComponent.tictactoe.cancel(interaction, userId, opponentId);
