@@ -192,14 +192,14 @@ export class BaseInteraction {
 }
 
 export class ComponentInteraction extends BaseInteraction {
-    readonly data!: APIMessageComponentInteraction;
+    declare readonly data: APIMessageComponentInteraction;
     get customId() {
         return this.data.data.custom_id;
     }
 }
 
 export class ChatInputInteraction extends BaseInteraction {
-    readonly data!: APIChatInputApplicationCommandInteraction;
+    declare readonly data: APIChatInputApplicationCommandInteraction;
     readonly options!: APIApplicationCommandInteractionDataOption[];
     constructor(client: import('detritus-client-rest').Client, interaction: APIChatInputApplicationCommandInteraction, options: APIApplicationCommandInteractionDataOption[]) {
         super(client, interaction);
