@@ -96,48 +96,6 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
                 await GameHelpers.request(interaction, game);
             }
             console.log(interaction, interaction.customId);
-            // switch (interaction.customId.split(',')[0]) {
-            //     case 'tictactoe': {
-            //         if (interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)) {
-            //             const [, , userId, opponentId, index] = interaction.customId.match(/tictactoe,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)![0].split(',');
-            //             const shouldDeleteGame = await HelpersComponent.tictactoe.move(interaction, userId, opponentId, parseInt(index), game);
-            //             if (shouldDeleteGame) {
-            //                 await API.database.deleteGame(interaction.user.id);
-            //                 while (asyncQueues[userId]?.remaining) asyncQueues[userId]!.shift();
-            //                 delete asyncQueues[userId];
-            //                 while (asyncQueues[opponentId]?.remaining) asyncQueues[opponentId]!.shift();
-            //                 delete asyncQueues[opponentId];
-            //                 return;
-            //             }
-            //         } else if (interaction.customId.match(/tictactoe,cancel,([0-9]{17,}),([0-9]{17,})/gi)) {
-            //             const [, , userId, opponentId] = interaction.customId.match(/tictactoe,cancel,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
-            //             await HelpersComponent.tictactoe.cancel(interaction, userId, opponentId);
-            //         } else if (interaction.customId.match(/tictactoe,request,([0-9]{17,}),([0-9]{17,})/gi)) {
-            //             const [, , userId, opponentId] = interaction.customId.match(/tictactoe,request,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
-            //             await HelpersComponent.tictactoe.request(interaction, userId, opponentId, game);
-            //         }
-            //     } break;
-            //     case 'connect4': {
-            //         if (interaction.customId.match(/connect4,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)) {
-            //             const [, , userId, opponentId, index] = interaction.customId.match(/connect4,move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)![0].split(',');
-            //             const shouldDeleteGame = await HelpersComponent.connect4.move(interaction, userId, opponentId, parseInt(index), game);
-            //             if (shouldDeleteGame) {
-            //                 await API.database.deleteGame(interaction.user.id);
-            //                 while (asyncQueues[userId]?.remaining) asyncQueues[userId]!.shift();
-            //                 delete asyncQueues[userId];
-            //                 while (asyncQueues[opponentId]?.remaining) asyncQueues[opponentId]!.shift();
-            //                 delete asyncQueues[opponentId];
-            //                 return;
-            //             }
-            //         } else if (interaction.customId.match(/connect4,cancel,([0-9]{17,}),([0-9]{17,})/gi)) {
-            //             const [, , userId, opponentId] = interaction.customId.match(/connect4,cancel,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
-            //             await HelpersComponent.connect4.cancel(interaction, userId, opponentId);
-            //         } else if (interaction.customId.match(/connect4,request,([0-9]{17,}),([0-9]{17,})/gi)) {
-            //             const [, , userId, opponentId] = interaction.customId.match(/connect4,request,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
-            //             await HelpersComponent.connect4.request(interaction, userId, opponentId, game);
-            //         }
-            //     } break;
-            // }
             queue?.shift();
             break;
     }
