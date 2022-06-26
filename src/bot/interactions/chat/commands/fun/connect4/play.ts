@@ -3,7 +3,7 @@ import { API } from '../../../../../../api.js';
 import { BaseCommand, DCommand, DCommandOptions, type ChatInputInteraction } from '../../../../base.js';
 
 @DCommand({
-    description: 'Play tictactoe',
+    description: 'Play Connect4',
     name: 'play',
     options: [{
         name: 'member',
@@ -32,25 +32,25 @@ export class Play extends BaseCommand {
             channelId: interaction.data.channel_id,
             messageId,
             guildId: interaction.data.guild_id,
-            type: 'TicTacToe'
+            type: 'Connect4'
         });
         if (!response.ok) return interaction.editOrCreateResponse({
             content: await response.text(),
         });
         return interaction.editOrCreateResponse({
-            content: `${user.username} tai invitado pa jugai ttt`,
+            content: `${user.username} tai invitado pa jugai c4`,
             components: [{
                 type: 1,
                 components: [{
                     type: 2,
                     style: ButtonStyle.Success,
                     label: 'Play',
-                    customId: `tictactoe,request,${interaction.user.id},${user.id}`,
+                    customId: `connect4,request,${interaction.user.id},${user.id}`,
                 }, {
                     type: 2,
                     style: ButtonStyle.Danger,
                     label: 'Cancel',
-                    customId: `tictactoe,cancel,${interaction.user.id},${user.id}`,
+                    customId: `connect4,cancel,${interaction.user.id},${user.id}`,
                 }]
             }]
         });

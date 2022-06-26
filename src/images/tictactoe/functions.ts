@@ -126,8 +126,6 @@ export async function drawTictactoeBoard(board: { map: [string, number][]; turn:
             break;
     }
 
-    console.log(winMethod);
-
     if (winMethod) {
         switch (winMethod.mode) {
             case 1:

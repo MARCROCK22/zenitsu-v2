@@ -46,10 +46,13 @@ export class EventProcessor {
             case 'GUILD_ROLE_DELETE':
                 await this.handleRoleDelete(event.d);
                 break;
+            case 'THREAD_CREATE':
+            case 'THREAD_UPDATE':
             case 'CHANNEL_CREATE':
             case 'CHANNEL_UPDATE':
                 await this.handleChannelCreate(event.d);
                 break;
+            case 'THREAD_DELETE':
             case 'CHANNEL_DELETE':
                 await this.handleChannelDelete(event.d);
                 break;
@@ -98,7 +101,7 @@ export class EventProcessor {
         if (event.guild_id) {
             // const message = await API.cache.get(`message:${event.guild_id}:${event.id}`);
             // if (message) await API.cache.post(`old_message:${event.guild_id}:${event.id}`, event, 60);
-            await API.cache.post(`message:${event.guild_id}:${event.id}`, event);
+            if ('content' in event) await API.cache.post(`message:${event.guild_id}:${event.id}`, event);
             if (event.member && event.author) await API.cache.post(`member:${event.guild_id}:${event.author.id}`, { user: event.author, ...event.member });
             if (event.author) await this.handleUserUpdate(event.author);
         }

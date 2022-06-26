@@ -1,9 +1,8 @@
 import { Game } from '@prisma/client';
 import { AsyncQueue } from '@sapphire/async-queue';
-import { RequestTypes } from 'detritus-client-rest';
 import { ButtonStyle } from 'discord-api-types/v10';
 import { API } from '../../../../api.js';
-import { splitArray } from '../../../functions.js';
+import { createComponentRow } from '../../../functions.js';
 import { asyncQueues } from '../../../handler.js';
 import { restClient } from '../../../run.js';
 import { ComponentInteraction } from '../../base.js';
@@ -35,33 +34,25 @@ export async function request(interaction: ComponentInteraction, userId: string,
 
     await API.database.acceptGame(interaction.user.id);
     console.log(user, opponent);
-    const splited = splitArray([
-        '', '', '',
-        '', '', '',
-        '', '', '',
-    ], 3);
-    const components: RequestTypes.CreateChannelMessageComponent[] = [];
-
-    for (let i in splited) {
-        const row: RequestTypes.CreateChannelMessageComponent[] = [];
-        for (let j in splited[i]) {
-            const index = parseInt(i) * 3 + parseInt(j);
-            row.push({
-                type: 2,
-                style: ButtonStyle.Secondary,
-                label: '-',
-                customId: `tictactoe,move,${user.id},${opponent.id},${index}`,
-                disabled: false,
-            });
-        }
-        components.push({
-            type: 1,
-            components: row,
-        });
-    }
 
     await interaction.editResponse({
-        content: (game.moves.length % 2) ? `[O] ${user.username} vs **${opponent.username}**` : `[X] **${user.username}** vs ${opponent.username}`,
-        components,
+        content: (game.moves.length % 2) ? `[🔴] ${user.username} vs **${opponent.username}**` : `[🟡] **${user.username}** vs ${opponent.username}`,
+        components: [{
+            type: 1,
+            components: createComponentRow(5, index => ({
+                style: ButtonStyle.Secondary,
+                label: (index + 1) + '',
+                customId: `connect4,move,${user!.id},${opponent!.id},${index}`,
+                disabled: false,
+            }))
+        }, {
+            type: 1,
+            components: createComponentRow(2, index => ({
+                style: ButtonStyle.Secondary,
+                label: (index + 6) + '',
+                customId: `connect4,move,${user!.id},${opponent!.id},${index + 5}`,
+                disabled: false,
+            }))
+        }],
     });
 }

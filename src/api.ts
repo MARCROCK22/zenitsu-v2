@@ -16,6 +16,7 @@ export const baseURL = {
     images: {
         base: 'http://localhost:3333',
         tictactoe: 'http://localhost:3333/tictactoe',
+        connect4: 'http://localhost:3333/connect4'
     },
 } as const;
 
@@ -37,15 +38,28 @@ export const API = {
                 return fetch(baseURL.images.tictactoe + '/game', {
                     method: 'POST',
                     body: JSON.stringify({
-                        turn: game.turn,
                         map: game.board.map((x, i) => {
                             const move = game.moves.find(x => Number(x.split(',')[1]) === i);
                             return [x, move ? move.split(',')[2] : null];
                         })
                     }),
                     headers: {
-                        'Content-Type': 'application/json',
-                        Authorization
+                        Authorization,
+                        'Content-Type': 'application/json'
+                    }
+                }).then(x => x.arrayBuffer());
+            }
+        },
+        connect4: {
+            drawGame(game: Game) {
+                return fetch(baseURL.images.connect4 + '/game', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        map: game.board,
+                    }),
+                    headers: {
+                        Authorization,
+                        'Content-Type': 'application/json'
                     }
                 }).then(x => x.arrayBuffer());
             }
@@ -61,16 +75,20 @@ export const API = {
                     channelId,
                     messageId,
                     guildId,
-                    turn: Math.floor(Math.random() * 2),
+                    turn: 0,
                 }),
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authorization
+                    Authorization,
+                    'Content-Type': 'application/json'
                 }
             });
         },
         async getGame(userId: string) {
-            const res = await fetch(`${baseURL.database}/game/${userId}`);
+            const res = await fetch(`${baseURL.database}/game/${userId}`, {
+                headers: {
+                    Authorization
+                }
+            });
             return res.json() as Promise<Game | null>;
         },
         deleteGame(userId: string) {
@@ -89,7 +107,8 @@ export const API = {
                     move
                 }),
                 headers: {
-                    Authorization
+                    Authorization,
+                    'Content-Type': 'application/json'
                 }
             });
         },
@@ -108,8 +127,8 @@ export const API = {
                 method: 'POST',
                 body: JSON.stringify(data),
                 headers: {
-                    'Content-Type': 'application/json',
-                    Authorization
+                    Authorization,
+                    'Content-Type': 'application/json'
                 }
             }).then(res => res.text());
         },

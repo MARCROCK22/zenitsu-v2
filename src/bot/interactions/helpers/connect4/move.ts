@@ -1,10 +1,9 @@
 import { Game } from '@prisma/client';
-import { RequestTypes } from 'detritus-client-rest';
 import { ButtonStyle, MessageFlags } from 'discord-api-types/v10';
 import { API } from '../../../../api.js';
-import { splitArray } from '../../../functions.js';
 import { restClient } from '../../../run.js';
 import { ComponentInteraction } from '../../base.js';
+import { createComponentRow } from '../../../functions.js';
 
 export async function move(interaction: ComponentInteraction, userId: string, opponentId: string, index: number, game: Game): Promise<boolean> {
     let user = await API.cache.get(`user:${userId}`);
@@ -37,7 +36,7 @@ export async function move(interaction: ComponentInteraction, userId: string, op
         });
         return false;
     }
-    const gameResponse = await API.database.makeMove(interaction.user.id, { type: 'TicTacToe', move: index + '' });
+    const gameResponse = await API.database.makeMove(interaction.user.id, { type: 'Connect4', move: index + '' });
     if (!gameResponse.ok) {
         await interaction.followUp({
             content: 'Invalid move',
@@ -46,35 +45,33 @@ export async function move(interaction: ComponentInteraction, userId: string, op
         return false;
     }
     const gameData = await gameResponse.json() as Game;
-    const components: RequestTypes.CreateChannelMessageComponent[] = [];
-    const splited = splitArray(gameData.board, 3);
-    for (let i in splited) {
-        const row: RequestTypes.CreateChannelMessageComponent[] = [];
-        for (let j in splited[i]) {
-            const index = parseInt(i) * 3 + parseInt(j);
-            row.push({
-                type: 2,
-                style: ButtonStyle.Secondary,
-                label: gameData.board[index] || '-',
-                customId: `tictactoe,move,${user.id},${opponent.id},${index}`,
-                disabled: !!gameData.board[index] || gameData.state === 'Finished',
-            });
-        }
-        components.push({
-            type: 1,
-            components: row
-        });
-    }
+
     const winner = [user, opponent].find(x => x.id === gameData.winner);
     await interaction.editResponse({
         content: gameData.state === 'Finished'
             ? winner ? `${winner.username} won` : `Draw between ${user.username} and ${opponent.username}`
-            : (gameData.moves.length % 2) ? `[O] ${user.username} vs **${opponent.username}**` : `[X] **${user.username}** vs ${opponent.username}`,
-        components,
+            : (gameData.moves.length % 2) ? `[🔴] ${user.username} vs **${opponent.username}**` : `[🟡] **${user.username}** vs ${opponent.username}`,
+        components: [{
+            type: 1,
+            components: createComponentRow(5, index => ({
+                style: ButtonStyle.Secondary,
+                label: (index + 1) + '',
+                customId: `connect4,move,${user!.id},${opponent!.id},${index}`,
+                disabled: false,
+            }))
+        }, {
+            type: 1,
+            components: createComponentRow(2, index => ({
+                style: ButtonStyle.Secondary,
+                label: (index + 6) + '',
+                customId: `connect4,move,${user!.id},${opponent!.id},${index + 5}`,
+                disabled: false,
+            }))
+        }],
         attachments: [],
         files: [{
-            value: await API.images.tictactoe.drawGame(gameData),
-            filename: 'ttt.png'
+            value: await API.images.connect4.drawGame(gameData),
+            filename: 'c4.png'
         }],
     });
     return gameData.state === 'Finished';

@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { GameTTT } from './classes/tictactoe.js';
 import { prismaClient } from './prisma/client.js';
+//fix this
+import __moduleConnect4 from '@lil_marcrock22/connect4-ai';
+
+const { Connect4 } = __moduleConnect4;
 
 const databaseRouter = Router();
 const defaultBoards = {
@@ -8,6 +12,13 @@ const defaultBoards = {
         '', '', '',
         '', '', '',
         '', '', '',
+    ],
+    Connect4: [
+        '', '', '', '', '', '', '', '', '', '',
+        '', '', '', '', '', '', '', '', '', '',
+        '', '', '', '', '', '', '', '', '', '',
+        '', '', '', '', '', '', '', '', '', '',
+        '', ''
     ]
 } as Record<string, string[]>;
 
@@ -103,11 +114,30 @@ databaseRouter.post('/game/:userId/move', async (req, res) => {
                     winner: !game.draw && game.finished ? userId : null,
                 }
             });
-            // if (game.finished) await prismaClient.game.delete({
-            //     where: {
-            //         id: data.id
-            //     }
-            // });
+            res.json(updatedGame);
+            break;
+        }
+        case 'Connect4': {
+            const game = new Connect4({ columns: 7, lengthArr: 6, necessaryToWin: 4 }, [null, null]);
+            game.createBoard();
+            for (let i of data.moves)
+                game.play(Number(i.split(',')[1]));
+            if (!game.canPlay(move)) return res.status(400).send('Invalid move');
+            game.play(move);
+            const updatedGame = await prismaClient.game.update({
+                where: {
+                    id: data.id
+                },
+                data: {
+                    board: Object.values(game.map).flat().map(x => x.key.toString()),
+                    turn: game.finished ? data.turn : (data.turn === 0 ? 1 : 0),
+                    moves: {
+                        push: `${userId},${move}`
+                    },
+                    state: game.finished ? 'Finished' : 'Playing',
+                    winner: game.winner ? userId : null,
+                }
+            });
             res.json(updatedGame);
             break;
         }
