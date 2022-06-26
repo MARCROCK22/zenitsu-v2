@@ -22,16 +22,6 @@ const defaultBoards = {
     ]
 } as Record<string, string[]>;
 
-// prismaClient.game.deleteMany({
-//     where: {
-//         users: {
-//             has: '507367752391196682'
-//         }
-//     }
-// }).then((x) => {
-//     console.log(x);
-// });
-
 databaseRouter.put('/game', async (req, res) => {
     const { type, users, channelId, messageId, guildId, turn } = req.body;
     if (await gameSchema.exists({
