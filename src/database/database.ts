@@ -14,61 +14,17 @@ const defaultBoards = {
         '', '', '',
     ],
     Connect4: [
-        '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '',
-        '', '', '', '', '', '', '', '', '', '',
-        '', ''
-    ]
+        '', '', '', '', '', '',
+        '', '', '', '', '', '',
+        '', '', '', '', '', '',
+        '', '', '', '', '', '',
+        '', '', '', '', '', '',
+        '', '', '', '', '', '',
+        '', '', '', '', '', ''
+    ],
+    //Think about this
+    Domino: []
 } as Record<string, string[]>;
-
-databaseRouter.put('/game', async (req, res) => {
-    const { type, users, channelId, messageId, guildId, turn } = req.body;
-    if (await gameSchema.exists({
-        $or: (users as string[]).map(x => ({ users: x }))
-    })) return res.status(400).send('Game already exists');
-    if (!(type in defaultBoards)) return res.status(400).send('Invalid game type');
-    const data = await gameSchema.create({
-        type,
-        users,
-        channelId,
-        messageId,
-        guildId,
-        turn,
-        board: defaultBoards[type as keyof typeof defaultBoards],
-        owner: users[0]
-    });
-    res.json(data);
-});
-
-databaseRouter.get('/game/:userId', async (req, res) => {
-    const { userId } = req.params;
-    const data = await gameSchema.findOne({
-        users: userId
-    });
-    res.json(data);
-});
-
-databaseRouter.delete('/game/:userId', async (req, res) => {
-    const { userId } = req.params;
-    const data = await gameSchema.findOne({
-        users: userId
-    });
-    if (!data) return res.status(400).send('Game not found');
-    if (data.owner === userId || data.users.length === 2)
-        await gameSchema.deleteMany({
-            users: userId
-        });
-    else await gameSchema.updateOne({
-        users: userId,
-    }, {
-        $pull: {
-            accepted: userId,
-            users: !data.accepted.includes(userId) ? userId : undefined,
-        }
-    });
-    res.send('OK');
-});
 
 databaseRouter.post('/game/:userId/move', async (req, res) => {
     const { type, move } = req.body;
@@ -128,6 +84,68 @@ databaseRouter.post('/game/:userId/move', async (req, res) => {
 
 });
 
+databaseRouter.put('/game', async (req, res) => {
+    const { type, users, channelId, messageId, guildId, turn } = req.body;
+    if (await gameSchema.exists({
+        $or: (users as string[]).map(x => ({ users: x }))
+    })) return res.status(400).send('Game already exists');
+    if (!(type in defaultBoards)) return res.status(400).send('Invalid game type');
+    const data = await gameSchema.create({
+        type,
+        users,
+        channelId,
+        messageId,
+        guildId,
+        turn,
+        board: defaultBoards[type as keyof typeof defaultBoards],
+        owner: users[0]
+    });
+    res.json(data);
+});
+
+databaseRouter.get('/game/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const data = await gameSchema.findOne({
+        users: userId
+    });
+    res.json(data);
+});
+
+databaseRouter.delete('/game/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const data = await gameSchema.findOne({
+        users: userId
+    });
+    if (!data) return res.status(400).send('Game not found');
+    if (data.owner === userId || data.users.length === 2)
+        await gameSchema.deleteMany({
+            users: userId
+        });
+    else await gameSchema.updateOne({
+        users: userId,
+    }, {
+        $pull: {
+            accepted: userId,
+            users: !data.accepted.includes(userId) ? userId : undefined,
+        }
+    });
+    res.send('OK');
+});
+
+databaseRouter.post('/game/:userId/start', async (req, res) => {
+    const { userId } = req.params;
+    const game = await gameSchema.findOne({
+        users: userId
+    });
+    if (!game) return res.status(400).send('Game not found');
+    const gameUpdated = await gameSchema.findOneAndUpdate({
+        id: game.id
+    }, {
+        state: 'Playing',
+        users: game.accepted
+    }, { new: true });
+    return res.json(gameUpdated);
+});
 
 databaseRouter.post('/game/:userId/accept', async (req, res) => {
     const { userId } = req.params;
