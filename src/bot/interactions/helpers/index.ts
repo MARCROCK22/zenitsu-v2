@@ -1,7 +1,9 @@
-import * as connect4 from './connect4/index.js';
-import * as tictactoe from './tictactoe/index.js';
+import * as Game from './game/index.js';
+import * as Connect4 from './game/games/connect4.js';
+import * as TicTacToe from './game/games/tictactoe.js';
 
 export {
-    connect4,
-    tictactoe,
+    Game as GameHelpers,
+    Connect4,
+    TicTacToe
 };

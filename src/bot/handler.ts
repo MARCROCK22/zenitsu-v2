@@ -7,7 +7,7 @@ import {
 } from 'discord-api-types/v10';
 import { BaseCommand, BaseSubcommandGroup, ComponentInteraction, ChatInputInteraction } from './interactions/base.js';
 import { restClient } from './run.js';
-import * as HelpersComponent from './interactions/helpers/index.js';
+import { GameHelpers } from './interactions/helpers/index.js';
 import { AsyncQueue } from '@sapphire/async-queue';
 
 export const asyncQueues: Record<string, AsyncQueue | undefined> = {};
@@ -79,8 +79,7 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
             if (!game) return;
             if (interaction.customId.match(/(tictactoe|connect4),move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)) {
                 const [__type, , userId, opponentId, index] = interaction.customId.match(/(tictactoe|connect4),move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)![0].split(',');
-                const gameType = __type as 'connect4' | 'tictactoe';
-                const shouldDeleteGame = await HelpersComponent[gameType].move(interaction, userId, opponentId, parseInt(index), game);
+                const shouldDeleteGame = await GameHelpers.move(interaction, parseInt(index), game);
                 if (shouldDeleteGame) {
                     await API.database.deleteGame(interaction.user.id);
                     while (asyncQueues[userId]?.remaining) asyncQueues[userId]!.shift();
@@ -91,12 +90,10 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
                 }
             } else if (interaction.customId.match(/(tictactoe|connect4),cancel,([0-9]{17,}),([0-9]{17,})/gi)) {
                 const [__type, , userId, opponentId] = interaction.customId.match(/(tictactoe|connect4),cancel,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
-                const gameType = __type as 'connect4' | 'tictactoe';
-                await HelpersComponent[gameType].cancel(interaction, userId, opponentId);
+                await GameHelpers.cancel(interaction, userId, opponentId);
             } else if (interaction.customId.match(/(tictactoe|connect4),request,([0-9]{17,}),([0-9]{17,})/gi)) {
-                const [__type, , userId, opponentId] = interaction.customId.match(/(tictactoe|connect4),request,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
-                const gameType = __type as 'connect4' | 'tictactoe';
-                await HelpersComponent[gameType].request(interaction, userId, opponentId, game);
+
+                await GameHelpers.request(interaction, game);
             }
             console.log(interaction, interaction.customId);
             // switch (interaction.customId.split(',')[0]) {
@@ -145,3 +142,7 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
             break;
     }
 }
+
+/*
+TODO: replace `game,method,id1,id2` by `game,method,_id`
+*/
