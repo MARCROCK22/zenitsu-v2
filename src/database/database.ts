@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { GameTTT } from './classes/tictactoe.js';
-import { prismaClient } from './prisma/client.js';
+import { gameSchema } from './models/game.js';
 //fix this
 import __moduleConnect4 from '@lil_marcrock22/connect4-ai';
 
@@ -34,48 +34,47 @@ const defaultBoards = {
 
 databaseRouter.put('/game', async (req, res) => {
     const { type, users, channelId, messageId, guildId, turn } = req.body;
-    if (await prismaClient.game.findFirst({
-        where: {
-            users: {
-                hasSome: users
-            }
-        },
-        select: { id: true },
+    if (await gameSchema.exists({
+        $or: (users as string[]).map(x => ({ users: x }))
     })) return res.status(400).send('Game already exists');
     if (!(type in defaultBoards)) return res.status(400).send('Invalid game type');
-    const data = await prismaClient.game.create({
-        data: {
-            type,
-            users,
-            channelId,
-            messageId,
-            guildId,
-            turn,
-            board: defaultBoards[type as keyof typeof defaultBoards],
-        }
+    const data = await gameSchema.create({
+        type,
+        users,
+        channelId,
+        messageId,
+        guildId,
+        turn,
+        board: defaultBoards[type as keyof typeof defaultBoards],
+        owner: users[0]
     });
     res.json(data);
 });
 
 databaseRouter.get('/game/:userId', async (req, res) => {
     const { userId } = req.params;
-    const data = await prismaClient.game.findFirst({
-        where: {
-            users: {
-                hasSome: userId
-            },
-        },
+    const data = await gameSchema.findOne({
+        users: userId
     });
     res.json(data);
 });
 
 databaseRouter.delete('/game/:userId', async (req, res) => {
     const { userId } = req.params;
-    await prismaClient.game.deleteMany({
-        where: {
-            users: {
-                hasSome: userId
-            }
+    const data = await gameSchema.findOne({
+        users: userId
+    });
+    if (!data) return res.status(400).send('Game not found');
+    if (data.owner === userId || data.users.length === 2)
+        await gameSchema.deleteMany({
+            users: userId
+        });
+    else await gameSchema.updateOne({
+        users: userId,
+    }, {
+        $pull: {
+            accepted: userId,
+            users: userId,
         }
     });
     res.send('OK');
@@ -84,12 +83,8 @@ databaseRouter.delete('/game/:userId', async (req, res) => {
 databaseRouter.post('/game/:userId/move', async (req, res) => {
     const { type, move } = req.body;
     const { userId } = req.params;
-    const data = await prismaClient.game.findFirst({
-        where: {
-            users: {
-                hasSome: userId
-            }
-        },
+    const data = await gameSchema.findOne({
+        users: userId
     });
     if (!data) return res.status(400).send('Game not found');
 
@@ -100,20 +95,17 @@ databaseRouter.post('/game/:userId/move', async (req, res) => {
                 game.play(Number(i.split(',')[1]));
             if (!game.canPlay(move)) return res.status(400).send('Invalid move');
             game.play(move);
-            const updatedGame = await prismaClient.game.update({
-                where: {
-                    id: data.id
+            const updatedGame = await gameSchema.findOneAndUpdate({
+                id: data.id
+            }, {
+                board: game.map,
+                turn: game.finished ? data.turn : (data.turn === 0 ? 1 : 0),
+                $push: {
+                    moves: `${userId},${move},${Math.floor(Math.random() * 9)}`
                 },
-                data: {
-                    board: game.map,
-                    turn: game.finished ? data.turn : (data.turn === 0 ? 1 : 0),
-                    moves: {
-                        push: `${userId},${move},${Math.floor(Math.random() * 9)}`
-                    },
-                    state: game.finished ? 'Finished' : 'Playing',
-                    winner: !game.draw && game.finished ? userId : null,
-                }
-            });
+                state: game.finished ? 'Finished' : 'Playing',
+                winner: !game.draw && game.finished ? userId : null,
+            }, { new: true });
             res.json(updatedGame);
             break;
         }
@@ -124,20 +116,17 @@ databaseRouter.post('/game/:userId/move', async (req, res) => {
                 game.play(Number(i.split(',')[1]));
             if (!game.canPlay(move)) return res.status(400).send('Invalid move');
             game.play(move);
-            const updatedGame = await prismaClient.game.update({
-                where: {
-                    id: data.id
+            const updatedGame = await gameSchema.findOneAndUpdate({
+                id: data.id
+            }, {
+                board: Object.values(game.map).flat().map(x => x.key.toString()),
+                turn: game.finished ? data.turn : (data.turn === 0 ? 1 : 0),
+                moves: {
+                    push: `${userId},${move}`
                 },
-                data: {
-                    board: Object.values(game.map).flat().map(x => x.key.toString()),
-                    turn: game.finished ? data.turn : (data.turn === 0 ? 1 : 0),
-                    moves: {
-                        push: `${userId},${move}`
-                    },
-                    state: game.finished ? 'Finished' : 'Playing',
-                    winner: game.winner ? userId : null,
-                }
-            });
+                state: game.finished ? 'Finished' : 'Playing',
+                winner: game.winner ? userId : null,
+            }, { new: true });
             res.json(updatedGame);
             break;
         }
@@ -150,24 +139,24 @@ databaseRouter.post('/game/:userId/move', async (req, res) => {
 });
 
 
-databaseRouter.post('/game/:userId/move', async (req, res) => {
+databaseRouter.post('/game/:userId/accept', async (req, res) => {
     const { userId } = req.params;
-    const data = await prismaClient.game.findFirst({
-        where: {
-            users: {
-                hasSome: userId
-            },
-        },
+    const game = await gameSchema.findOne({
+        users: userId
     });
-    if (!data) return res.status(400).send('Game not found');
-    const gameUpdated = await prismaClient.game.update({
-        where: {
-            id: data.id
-        },
-        data: {
-            state: 'Playing'
+    if (!game) return res.status(400).send('Game not found');
+    const gameUpdated = await gameSchema.findOneAndUpdate({
+        id: game.id
+    }, {
+        state: game.users.length === 2
+            ? 'Playing'
+            : game.users.length === (game.accepted.filter(x => x !== userId).length + 1)
+                ? 'Playing'
+                : 'Waiting',
+        $addToSet: {
+            accepted: userId
         }
-    });
+    }, { new: true });
     return res.json(gameUpdated);
 });
 

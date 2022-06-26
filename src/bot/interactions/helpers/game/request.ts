@@ -1,13 +1,13 @@
-import { Game } from '@prisma/client';
 import { AsyncQueue } from '@sapphire/async-queue';
 import { API } from '../../../../api.js';
+import { gameModel } from '../../../../database/models/game.js';
 import { CachedUser } from '../../../../database/zod.js';
 import { asyncQueues } from '../../../handler.js';
 import { restClient } from '../../../run.js';
 import { ComponentInteraction } from '../../base.js';
 import { parseGameType } from './index.js';
 
-export async function request(interaction: ComponentInteraction, game: Game) {
+export async function request(interaction: ComponentInteraction, game: gameModel) {
     if (game.users[1] !== interaction.user.id) return;
     // let user = await API.cache.get(`user:${userId}`);
     // let opponent = await API.cache.get(`user:${opponentId}`);

@@ -1,5 +1,6 @@
 import { ApplicationCommandOptionType, ButtonStyle } from 'discord-api-types/v10';
 import { API } from '../../../../../../api.js';
+import { gameModel } from '../../../../../../database/models/game.js';
 import { BaseCommand, DCommand, DCommandOptions, type ChatInputInteraction } from '../../../../base.js';
 
 @DCommand({
@@ -37,6 +38,7 @@ export class Play extends BaseCommand {
         if (!response.ok) return interaction.editOrCreateResponse({
             content: await response.text(),
         });
+        const game = await response.json() as gameModel;
         return interaction.editOrCreateResponse({
             content: `${user.username} tai invitado pa jugai ttt`,
             components: [{
@@ -45,12 +47,12 @@ export class Play extends BaseCommand {
                     type: 2,
                     style: ButtonStyle.Success,
                     label: 'Play',
-                    customId: `tictactoe,request,${interaction.user.id},${user.id}`,
+                    customId: `tictactoe,request,${game._id}`,
                 }, {
                     type: 2,
                     style: ButtonStyle.Danger,
                     label: 'Cancel',
-                    customId: `tictactoe,cancel,${interaction.user.id},${user.id}`,
+                    customId: `tictactoe,cancel,${game._id}`,
                 }]
             }]
         });

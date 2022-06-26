@@ -2,7 +2,7 @@ import { cancel } from './cancel.js';
 import { request } from './request.js';
 import { move } from './move.js';
 import * as GameFunctions from '../index.js';
-import { Game } from '@prisma/client';
+import { gameModel } from '../../../../database/models/game.js';
 
 export {
     move,
@@ -10,7 +10,7 @@ export {
     cancel
 };
 
-export function parseGameType(type: Game['type']) {
+export function parseGameType(type: gameModel['type']) {
     switch (type) {
         case 'Connect4':
             return GameFunctions.Connect4;

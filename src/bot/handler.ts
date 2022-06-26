@@ -77,30 +77,22 @@ async function handleInteractionCreate(event: GatewayInteractionCreateDispatch &
             if (queue) await queue.wait();
             const game = await API.database.getGame(interaction.user.id);
             if (!game) return;
-            if (interaction.customId.match(/(tictactoe|connect4),move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)) {
-                const [__type, , userId, opponentId, index] = interaction.customId.match(/(tictactoe|connect4),move,([0-9]{17,}),([0-9]{17,}),([0-8])/gi)![0].split(',');
+            if (game.state === 'Playing' && interaction.customId.match(/(tictactoe|connect4),move,([aA-zZ0-9]{1,}),([0-8])/gi)) {
+                const [, , , index] = interaction.customId.match(/(tictactoe|connect4),move,([aA-zZ0-9]{1,}),([0-8])/gi)![0].split(',');
                 const shouldDeleteGame = await GameHelpers.move(interaction, parseInt(index), game);
                 if (shouldDeleteGame) {
                     await API.database.deleteGame(interaction.user.id);
-                    while (asyncQueues[userId]?.remaining) asyncQueues[userId]!.shift();
-                    delete asyncQueues[userId];
-                    while (asyncQueues[opponentId]?.remaining) asyncQueues[opponentId]!.shift();
-                    delete asyncQueues[opponentId];
-                    return;
+                    for (let i of game.users)
+                        while (asyncQueues[i]?.remaining)
+                            asyncQueues[i]!.shift();
                 }
-            } else if (interaction.customId.match(/(tictactoe|connect4),cancel,([0-9]{17,}),([0-9]{17,})/gi)) {
-                const [__type, , userId, opponentId] = interaction.customId.match(/(tictactoe|connect4),cancel,([0-9]{17,}),([0-9]{17,})/gi)![0].split(',');
-                await GameHelpers.cancel(interaction, userId, opponentId);
-            } else if (interaction.customId.match(/(tictactoe|connect4),request,([0-9]{17,}),([0-9]{17,})/gi)) {
-
+            } else if (game.state === 'Waiting' && interaction.customId.match(/(tictactoe|connect4),cancel,([aA-zZ0-9]{1,})/gi)) {
+                await GameHelpers.cancel(interaction, game.users);
+            } else if (game.state === 'Waiting' && interaction.customId.match(/(tictactoe|connect4),request,([aA-zZ0-9]{1,})/gi)) {
                 await GameHelpers.request(interaction, game);
             }
-            console.log(interaction, interaction.customId);
+            console.log(game, interaction.customId);
             queue?.shift();
             break;
     }
 }
-
-/*
-TODO: replace `game,method,id1,id2` by `game,method,_id`
-*/

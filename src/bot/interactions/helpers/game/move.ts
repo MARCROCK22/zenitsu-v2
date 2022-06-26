@@ -1,12 +1,12 @@
-import { Game } from '@prisma/client';
 import { MessageFlags } from 'discord-api-types/v10';
 import { API } from '../../../../api.js';
+import { gameModel } from '../../../../database/models/game.js';
 import { CachedUser } from '../../../../database/zod.js';
 import { restClient } from '../../../run.js';
 import { ComponentInteraction } from '../../base.js';
 import { parseGameType } from './index.js';
 
-export async function move(interaction: ComponentInteraction, index: number, game: Game): Promise<boolean> {
+export async function move(interaction: ComponentInteraction, index: number, game: gameModel): Promise<boolean> {
     // let user = await API.cache.get(`user:${userId}`);
     // let opponent = await API.cache.get(`user:${opponentId}`);
     //fetch user and oppenent from rest if not in cache and add to cache
@@ -62,7 +62,7 @@ export async function move(interaction: ComponentInteraction, index: number, gam
         });
         return false;
     }
-    const gameData = await gameResponse.json() as Game;
+    const gameData = await gameResponse.json() as gameModel;
     await interaction.editResponse(await parseGameType(gameData.type).move(gameData, users as CachedUser[]));
     return gameData.state === 'Finished';
 }

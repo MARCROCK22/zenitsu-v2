@@ -1,9 +1,9 @@
 import __fetch from 'node-fetch';
 import { CachedChannel, CachedGuild, CachedGuildMember, CachedMessage, CachedRole, CachedUser } from './database/zod';
 import { AsyncQueue } from '@sapphire/async-queue';
-import { Game, GameType } from '@prisma/client';
 import { join } from 'path';
 import { config } from 'dotenv';
+import { type gameModel } from './database/models/game';
 
 config({
     path: join(process.cwd(), '.env')
@@ -34,7 +34,7 @@ export const API = {
     },
     images: {
         tictactoe: {
-            drawGame(game: Game) {
+            drawGame(game: gameModel) {
                 return fetch(baseURL.images.tictactoe + '/game', {
                     method: 'POST',
                     body: JSON.stringify({
@@ -51,7 +51,7 @@ export const API = {
             }
         },
         connect4: {
-            drawGame(game: Game) {
+            drawGame(game: gameModel) {
                 return fetch(baseURL.images.connect4 + '/game', {
                     method: 'POST',
                     body: JSON.stringify({
@@ -66,7 +66,7 @@ export const API = {
         }
     },
     database: {
-        async createGame(users: [string, string], { channelId, messageId, guildId, type }: { channelId: string, messageId: string, guildId: string, type: keyof typeof GameType }) {
+        async createGame(users: string[], { channelId, messageId, guildId, type }: { channelId: string, messageId: string, guildId: string, type: gameModel['type'] }) {
             return createFetchQueued('createGame')(`${baseURL.database}/game`, {
                 method: 'PUT',
                 body: JSON.stringify({
@@ -89,7 +89,7 @@ export const API = {
                     Authorization
                 }
             });
-            return res.json() as Promise<Game | null>;
+            return res.json() as Promise<gameModel | null>;
         },
         deleteGame(userId: string) {
             return fetch(`${baseURL.database}/game/${userId}`, {
@@ -99,7 +99,7 @@ export const API = {
                 }
             });
         },
-        makeMove(userId: string, { type, move }: { type: keyof typeof GameType, move: string }) {
+        makeMove(userId: string, { type, move }: { type: gameModel['type'], move: string }) {
             return fetch(`${baseURL.database}/game/${userId}/move`, {
                 method: 'POST',
                 body: JSON.stringify({

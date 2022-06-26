@@ -22,6 +22,8 @@ model Game {
   turn      Int
   winner    String?
   moves     String[] //...moves
+  owner     String
+  accepted  String[]
 }
 
 enum GameType {

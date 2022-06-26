@@ -1,12 +1,11 @@
-import { Game } from '@prisma/client';
 import { RequestTypes } from 'detritus-client-rest';
 import { ButtonStyle } from 'discord-api-types/v10';
 import { API } from '../../../../../api.js';
+import { gameModel } from '../../../../../database/models/game.js';
 import { CachedUser } from '../../../../../database/zod.js';
 import { splitArray } from '../../../../functions.js';
 
-export function request(game: Game, users: CachedUser[]): RequestTypes.EditWebhookTokenMessage {
-    const [user, opponent] = users;
+export function request(game: gameModel, users: CachedUser[]): RequestTypes.EditWebhookTokenMessage {
     const splited = splitArray([
         '', '', '',
         '', '', '',
@@ -22,7 +21,7 @@ export function request(game: Game, users: CachedUser[]): RequestTypes.EditWebho
                 type: 2,
                 style: ButtonStyle.Secondary,
                 label: '-',
-                customId: `tictactoe,move,${user.id},${opponent.id},${index}`,
+                customId: `tictactoe,move,${game._id},${index}`,
                 disabled: false,
             });
         }
@@ -32,12 +31,12 @@ export function request(game: Game, users: CachedUser[]): RequestTypes.EditWebho
         });
     }
     return {
-        content: (game.moves.length % 2) ? `[O] ${user.username} vs **${opponent.username}**` : `[X] **${user.username}** vs ${opponent.username}`,
+        content: users.map(x => x.id === game.users[game.turn] ? `**${x.username}**` : x.username).join(' vs '),
         components,
     };
 }
 
-export async function move(game: Game, users: CachedUser[]): Promise<RequestTypes.EditWebhookTokenMessage> {
+export async function move(game: gameModel, users: CachedUser[]): Promise<RequestTypes.EditWebhookTokenMessage> {
     const [user, opponent] = users;
     const winner = users.find(x => x.id === game.winner);
     const components: RequestTypes.CreateChannelMessageComponent[] = [];
@@ -50,7 +49,7 @@ export async function move(game: Game, users: CachedUser[]): Promise<RequestType
                 type: 2,
                 style: ButtonStyle.Secondary,
                 label: game.board[index] || '-',
-                customId: `tictactoe,move,${user.id},${opponent.id},${index}`,
+                customId: `tictactoe,move,${game._id},${index}`,
                 disabled: !!game.board[index] || game.state === 'Finished',
             });
         }
@@ -62,7 +61,7 @@ export async function move(game: Game, users: CachedUser[]): Promise<RequestType
     return {
         content: game.state === 'Finished'
             ? winner ? `${winner.username} won` : `Draw between ${user.username} and ${opponent.username}`
-            : (game.moves.length % 2) ? `[O] ${user.username} vs **${opponent.username}**` : `[X] **${user.username}** vs ${opponent.username}`,
+            : users.map(x => x.id === game.users[game.turn] ? `**${x.username}**` : x.username).join(' vs '),
         components,
         attachments: [],
         files: [{
