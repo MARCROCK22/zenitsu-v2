@@ -64,7 +64,7 @@ databaseRouter.delete('/game/:userId', async (req, res) => {
     }, {
         $pull: {
             accepted: userId,
-            users: userId,
+            users: !data.accepted.includes(userId) ? userId : undefined,
         }
     });
     res.send('OK');
