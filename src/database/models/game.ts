@@ -28,7 +28,7 @@ export interface Connect4Game extends baseGame {
 
 export interface DominoGame extends baseGame {
     type: 'Domino';
-    board: { 0: string[]; 1: string[]; 2: string[]; 3: string[]; domino: string[] }[];
+    board: { 0: string[]; 1: string[]; 2: string[]; 3: string[]; domino: string[]; extra: string[] }[];
 }
 
 export type gameModel =
